@@ -1,21 +1,17 @@
-; TODO - fix comments
-;
 ; Example 6 - Generating Score
 ; Author: Steven Yi <stevenyi@gmail.com>
 ; 2013.10.28
 ;
 ; This example continues on from Example 5, rewriting the example using
-; a Class called Note. The note example has its __str__ method implemented
-; to generate a well-formatted Csound SCO note.  
+; a small function called note that returns a vector of values. 
+; A note->str function is provided the formats the note's values 
+; into a well-formatted Csound SCO note.  
 ;
-; This example also shows how a list of notes could be used multiple times.
-; The first loop through we use the notes as-is, and during the second time
-; we generate the notes again with the same properties except we alter the 
-; fifth p-field up 4 semitones. 
-;
-; Note: Altering a Notes values like this is alright for this example, but 
-; it is a destructive edit.  Real world code might make copies of Notes or 
-; alter the score generation to maintain the original values. 
+; This example also shows how a list of notes can be transformed. 
+; We first generate notes using mapping over a range from 0 to 12.  Next,
+; we map over the notes to generate a transposed set of notes. These
+; notes have the same properties as the original notes except the 
+; fifth p-field has been transposed up 4 semitones. 
 
 (import [csnd6 csnd6 Csound] 
         [java.util Random])
@@ -29,10 +25,11 @@
   (format "%d.%02d" (+ 3 (quot num 12)) (rem num 12)))
 
 (defn note [& pfields]
-  "takes arguments and puts into a vector to represent a note"
+  "Takes arguments and puts into a vector to represent a note"
   (into [] pfields))
 
 (defn note->str [note]
+  "Converts a note into a string"
   (let [pfields (pop note)
         mpch (last note)]
    (str "i" (join " " pfields) " " (midi->pch mpch))))
@@ -53,17 +50,20 @@ outs aout, aout
 endin")
 
 
+; generate notes using random MIDI pitch values from 60-75
 (def notes
   (let [r (Random.)]
     (map #(note 1 (* 0.25 %) 0.25 0.5 
                 (+ 60 (.nextInt r 15))) 
          (range 0 13))))
 
+; generate a tansposed set of notes  
 (def transposed
   (map #(let [fields (pop %) 
               mpch (last %)] 
           (conj fields (+ 4 mpch))) notes))
 
+; convert both sets of notes into a single SCO string
 (def sco 
   (join "\n"
     (map note->str 
@@ -83,23 +83,4 @@ endin")
     (when (zero? retval)
       (recur (.PerformKsmps c))))
   (.Stop c))
-
-;notes = []           #initialize a list to hold lists of values 
-;for i in range(13): #populate that list
-;    notes.append( Note(1, i * .25, .25, 0.5, randint(60,75)) )
-
-;# now convert list of Note objects to string
-;sco = ""
-;for n in notes:
-;    sco += "%s\n"%n # this implicitly calls the __str__ method on the Note Class
-
-;# generate notes again transposed a Major 3rd up
-;for n in notes:
-;    n.pfields[4] += 4
-;    n.pfields[1] += .125
-;    sco += "%s\n"%n 
-
-
-
-
 
