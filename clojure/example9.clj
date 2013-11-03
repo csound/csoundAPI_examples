@@ -11,7 +11,6 @@
 
 (import [csnd6 csnd6 Csound CsoundMYFLTArray controlChannelType] 
         [java.util Random])
-(require '[clojure.string :refer [join]])
 
 ; this line turns off Csound's atexit handler as well as signal handlers
 (csnd6/csoundInitialize 

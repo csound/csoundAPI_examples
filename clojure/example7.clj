@@ -25,7 +25,6 @@
 
 (import [csnd6 csnd6 Csound] 
         [java.util Random])
-(require '[clojure.string :refer [join]])
 
 ; this line turns off Csound's atexit handler as well as signal handlers
 (csnd6/csoundInitialize (bit-or csnd6/CSOUNDINIT_NO_ATEXIT csnd6/CSOUNDINIT_NO_SIGNAL_HANDLER))
