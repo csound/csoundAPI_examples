@@ -1,14 +1,24 @@
 # Example 6 - Generating Score
 #
-# This example continues on from Example 5, rewriting the example using
-# a Class called Note. The note example has its __str__ method implemented
-# to generate a well-formatted Csound SCO note.  
+# This version of example 6 enhances the Note class with getter/setter
+# methods for each p-field using ORC-style names. This is done using the Ruby
+# meta-programming technique of creating new methods on the fly based on the
+# pattern of the name. In this case the patterns are "pN" and "pN=" where N
+# is some integer. The new methods are cached and have the same lifetime as
+# the instance they belong to.
 #
-# This example also shows how a list of notes could be used multiple times.
-# The first loop through we use the notes as-is, and during the second time
-# we generate the notes again with the same properties except we alter the 
-# fifth p-field up 4 semitones. 
-
+# For example:
+#
+#   # create now note instance
+#   n = Note.new(1, i * 0.25, 0.25, 0.5, rand(60..75))
+#
+#   # change the values of p4 and p5
+#   n.p2 += 0.125       # time offset for arpeggiation
+#   n.p5 += 4           # transposition
+#
+#   # print the value of p3
+#   puts n.p3
+#
 require 'csnd6'
 import 'csnd6.Csound'
 
@@ -55,43 +65,33 @@ class Note
   def method_missing(method_sym, *arguments, &block)
     match = PMatcher.new(method_sym)
     if match.match?
-      i = match.index - 1                 # pfields re 1-based, but not our internal array
+      i = match.index - 1                 # pfield names are 1-based, but the internal array i 0-based
       if match.set
-        # getter: create new method and call its helper
+        # setter
         self.class.class_eval <<-EOF
           def p#{match.index}=(val)
-            set_pfield(#{i}, val)
+            @pfields[#{i}] = val
           end
         EOF
-        set_pfield(i, arguments.first)
+        @pfields[i] = arguments.first
       else
-        # setter: create new method and call its helper
+        # getter
         self.class.class_eval <<-EOF
           def p#{match.index}
-            get_pfield(#{i})
+            @pfields[#{i}]
           end
         EOF
-        get_pfield(i)
+        @pfields[i]
       end
     else
       super
     end
   end
 
-  # override: indicate that we understand methods like "p1" and "p1="
+  # override: indicate that we understand methods that look like "p1" and "p1="
   def self.respond_to?(method_sym, include_private=false)
     PMatcher.new(method_sym).match? ? true : super
   end
-
-  private
-    def get_pfield(i)
-      @pfields[i]
-    end
-
-    def set_pfield(i, val)
-      @pfields[i] = val
-    end
-
 end
 
 # Our Orchestra for our project
