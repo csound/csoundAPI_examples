@@ -25,9 +25,11 @@ On an Ubuntu system, add the following to the file ~/.bash_profile:
 
 On a Windows system, use:
 
-  \_JAVA\_OPTIONS="-Djava.class.path=/usr/lib -Djava.library.path=/usr/lib/jni"
+  \_JAVA\_OPTIONS=-Djava.class.path="C:\Program Files(x86)\Csound6\bin" -Djava.library.path="C:\Program Files(x86)\Csound6\bin"
 
 ## Notes
+
+*TODO*: Verify correctness of Windows paths.
 
 1. If you build Csound yourself and install it using "make install", then use
 "/usr/local/lib" instead of "/usr/lib" for your classpath.
