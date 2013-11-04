@@ -1,4 +1,4 @@
-# Example 11 - Graphical User Interfaces
+# Example 12 - Graphical User Interfaces
 # Author: Steven Yi <stevenyi@gmail.com>
 # 2013.10.28
 #
