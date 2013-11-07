@@ -14,10 +14,13 @@
 int main(int argc, char *argv[])
 {
 //Create an instance of Csound
-Csound* csound = new Csound;
+Csound* csound = new Csound();
 
 //compile instance of csound.
-csound->Compile("example1.csd");
+csound->Compile("test1.csd");
+
+//prepare Csound for performance
+csound->Start();
 
 //perform entire score
 csound->Perform();	
