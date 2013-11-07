@@ -65,8 +65,8 @@ c:SetOption("-odac")  -- Set option for Csound
 c:CompileOrc(orc)     -- Compile Orchestra from String
 
 
-local notes = {}           --initialize a list to hold lists of values 
-for i=0, 12 do --populate that list
+local notes = {}      --initialize a table to hold lists of values 
+for i=0, 12 do --populate that table
     notes[#notes+1] = Note:new{1, i * .25, .25, 0.5, math.random(60,75)}
 end
 
