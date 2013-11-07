@@ -94,8 +94,8 @@ freq = RandomLine:new(400, 80)  -- create RandomLine for use with Frequency
 c:SetChannel("amp", amp:getValue())     -- Initialize channel value before running Csound
 c:SetChannel("freq", freq:getValue())   -- Initialize channel value before running Csound
 
---print(amp.getValue())
---print(freq.getValue())
+--print(amp:getValue())
+--print(freq:getValue())
 
 while (c:PerformKsmps() == 0) do
     c:SetChannel("amp", amp:getValue())   -- update channel value 

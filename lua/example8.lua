@@ -94,8 +94,8 @@ freq = RandomLine:new(400, 80)
 ampChannel:SetValue(0, amp:getValue())    -- note we are now setting values on the CsoundMYFLTArray
 freqChannel:SetValue(0, freq:getValue())
 
---print(amp.getValue())
---print(freq.getValue())
+--print(amp:getValue())
+--print(freq:getValue())
 
 while (c:PerformKsmps() == 0) do
     ampChannel:SetValue(0, amp:getValue())
