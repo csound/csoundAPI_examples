@@ -20,3 +20,4 @@ function(make_example name src)
 endfunction(make_example)
 
 make_example(example1 example1.c)
+make_example(example2 example2.c)
