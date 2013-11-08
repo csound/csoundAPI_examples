@@ -1,13 +1,10 @@
 /* Example 1 - Simple Compilation with Csound
  Author: Steven Yi <stevenyi@gmail.com> 2013.10.28
  Adapted for C++ by Rory Walsh
- 
- In this example, we move from using an external CSD file to
- embedding our Csound ORC and SCO code within our source.
- Besides allowing encapsulating the code within the same file,
- using the CompileOrc() and CompileSco() API calls is useful when
- the SCO or ORC are generated, or perhaps coming from another
- source, such as from a database or network.
+
+ In this example, we use a while loop to perform Csound one audio block at a time.
+ This technique is important to know as it will allow us to do further processing
+ safely at block boundaries. We will explore the technique further in later examples.
 */
 
 #include <stdio.h>
@@ -43,7 +40,7 @@ csound->ReadScore(sco.c_str());
 csound->Start();
 
 //perform entire score
-csound->Perform();	
+while(csound->PerformKsmps()==0)	
 
 //free Csound object
 delete csound;
