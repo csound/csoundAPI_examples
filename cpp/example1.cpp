@@ -1,6 +1,6 @@
 /* Example 1 - Simple Compilation with Csound
- Author: Steven Yi <stevenyi@gmail.com>
- 2013.10.28
+ Author: Steven Yi <stevenyi@gmail.com> 2013.10.28
+ Adapted for C++ by Rory Walsh
 
  Adapted to C++ by Rory Walsh 
  This example is a barebones example for creating an instance of Csound, 
