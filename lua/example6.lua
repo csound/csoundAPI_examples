@@ -34,11 +34,11 @@ end
 
 function Note:tostring()
     local retVal = {}
-    for i in ipairs(self.pfields) do
+    for i, v in ipairs(self.pfields) do
         if(i == 5) then
-            retVal[#retVal+1] = midi2pch(self.pfields[i])
+            retVal[#retVal+1] = midi2pch(v)
         else
-            retVal[#retVal+1] = self.pfields[i]
+            retVal[#retVal+1] = v
         end
     end
     return "i" .. table.concat(retVal, " ")
