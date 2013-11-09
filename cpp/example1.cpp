@@ -27,6 +27,8 @@ csound->Perform();
 
 //free Csound object
 delete csound;
+
+return 0;
 }
 
 
