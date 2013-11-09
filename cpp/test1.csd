@@ -1,4 +1,7 @@
 <CsoundSynthesizer>
+<CsOptions>
+-+rtaudio=alsa -odac:hw:0,0
+</CsOptions>
 <CsInstruments>
 sr=44100
 ksmps=32

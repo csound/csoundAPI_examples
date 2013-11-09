@@ -16,20 +16,21 @@
 
 int main(int argc, char *argv[])
 {
-std::string orc = "sr=44100\
-ksmps=32\
-nchnls=2\
-0dbfs=1\
-\
-instr 1\
-aout vco2 0.5, 440\
-outs aout, aout\
+std::string orc = "sr=44100\n\
+ksmps=32\n\
+nchnls=2\n\
+0dbfs=1\n\
+\n\
+instr 1\n\
+aout vco2 0.5, 440\n\
+outs aout, aout\n\
 endin";
 	
 std::string sco = "i1 0 1";	
 	
 //create an instance of Csound
 Csound* csound = new Csound();
+
 //set CsOptions
 csound->SetOption("-odac");
 
@@ -47,6 +48,8 @@ csound->Perform();
 
 //free Csound object
 delete csound;
+
+return 0;
 }
 
 
