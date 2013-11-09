@@ -21,4 +21,4 @@ The twelve examples presented in this folder demonstrate the same API usages as 
 * You will want the latest version of the bridge (0.2.1): it contains these examples as a project as well as enhancements to the bridge inspired by developing these examples. 
 * Remember to add a reference to **csound6netlib.dll** in your Visual Studio project and to add and a *using csound6netlib;* statement to any class which uses the bridge.
 * Explore the included Doxygen documentation for an in depth look at the classes and methods that map to the canonical Csound API.
-* You can browse and/or download [source code to the bridge](http://csound6net.codeplex.com/SourceControl/latest) to gain further insights into using it.  It is not included in the binary download.
+* You can browse and/or download [source code to the bridge](https://csound6net.codeplex.com/SourceControl/latest#CsoundNetLib/csoundAPI_Examples/csoundAPI_Examples.cs) to gain further insights into using it.  It is not included in the binary download.

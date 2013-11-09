@@ -10,7 +10,7 @@ namespace csoundAPI_examples
 {
     public partial class CsoundAPI_Examples
     {
-        /* Example 5 - Generating a Score
+        /* Example 5 - Generating a Score, C# try/catch blocks
          * 
          * In this example, we will look at three techniques for generating our Score. 
          * The first is one we have already seen, which is to just write out the score
@@ -72,7 +72,7 @@ namespace csoundAPI_examples
 
             using (var c = new Csound6Net())
             {
-                c.SetOption("-odac");   // Set option for Csound
+                c.SetOutputDac(0);   // Set realtime output 
                 try
                 {
                     c.CompileOrc(orc2);         // Compile different Orchestra with moogladder 

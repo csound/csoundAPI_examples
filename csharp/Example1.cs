@@ -44,7 +44,7 @@ namespace csoundAPI_examples
         public void Example1()
         {
             // Create an instance of the Csound object within a using block
-            using (var c = new Csound6Net())// Create an instance of the Csound object within a using block
+            using (var c = new Csound6Net())
             {
                 c.Compile(new string[] { "test1.csd" });  // Compile a pre-defined test1.csd file, includes Start()
                 c.Perform();        // This call runs Csound to completion (saving Stop() for next example)
