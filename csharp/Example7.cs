@@ -50,11 +50,16 @@ namespace csoundAPI_examples
                 var freq = new RandomLine(400, 80); // create RandomLine for use with Frequency 
 
                 var bus = c.GetSoftwareBus();
+                //Channels can be created explicitly:
+                bus.AddControlChannel("amp", ChannelDirection.Input);
+                bus["amp"] = amp.Value;  //Add initial value: Value property changes after each use
+
+                //Or channels can be created implicitly just by using it:
                 //The bus's channels can be accessed by name like a dictionary.
                 //If they don't yet exist, they will be defined (input/output as default)
-                bus["amp"] = amp.Value;  //Create and provide and initial value for an amplitude channel
-                bus["freq"] = freq.Value;//Create and provide and initial value for a frequency channel
+                bus["freq"] = freq.Value;//Create and provide and initial value in one call
 
+                //Now we have our channels: update them with new RandomLine values after each ksmps cycle:
                 while (!c.PerformKsmps())
                 {
                     bus["amp"] = amp.Value;  

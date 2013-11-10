@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 /*
  * All Examples:
@@ -47,29 +48,41 @@ namespace csoundAPI_examples
          * The orchestra strings are part of this class and defined below.
          * 
          * When runnings, enter an exercise number to hear the result.
-         * Exercise 5 randomly selects one of three note-generating algorithms.
-         * Run it repeatedly until you have heard all three.
+         * Exercise number can be an integer or, if there are subtests, a real number
+         * where the fractional digit is the one-based subtest number (like 5.2 to
+         * run the third subtest in example 5 or 5.0 to run the first)
          */
         static void Main(string[] args)
         {
             var pgm = new CsoundAPI_Examples();
-            var r = new Random();
-            int choice = 0;
+            double choice = 0.0;
             do
             {
-                Console.Write("\nEnter a test number between 1 and 7: ");
+                Console.Write("\nEnter a test number between 1 and 7 (can be real number for subtests): ");
                 string val = Console.ReadLine();
-                if (int.TryParse(val, out choice))
+                if (double.TryParse(val, out choice))
                 {
-                    switch (choice)
+                    int pgmNbr = (int)choice;
+                    int subPgmNbr = (((int)(choice * 10)) % 10);
+                    switch (pgmNbr)
                     {
                         case 1: pgm.Example1(); break;
                         case 2: pgm.Example2(); break;
                         case 3: pgm.Example3(); break;
-                        case 4: Console.WriteLine("Example 4 not implemented yet");  break;// pgm.Example4(); break;
-                        case 5: pgm.Example5(r.Next(3)); break;
+                        case 4:
+                            if ((subPgmNbr % 2) == 0)
+                                pgm.Example4();//use performanceThread
+                            else
+                            {
+                                var t = pgm.Example41(); //use C# Tasks
+                                Task.WaitAll(t);
+                            }
+                            break;
+                        case 5: pgm.Example5(subPgmNbr % 3); break;
                         case 6: pgm.Example6(); break;
                         case 7: pgm.Example7(); break;
+                        case 8: pgm.Example8(); break;
+                        case 9: pgm.Example9(); break;
                         default:
                             choice = -1;
                             break;

@@ -34,20 +34,20 @@ namespace csoundAPI_examples
                 c.SetOption("-odac");   // Set option for Csound
                 //Create score from a generated list of Note objects using Midi pitches 60-75.
                 var notes = new List<Note>();
-                for (int i = 0; i < 13; i++)
-                    notes.Add(new Note(new double[] { 1, i * .25, .25, .5, r.Next(60, 75) }));
+                for (int i = 0; i < 13; i++)       // P1  P2-start P3-Dur P4-amp   P5-frq 
+                    notes.Add(new Note(new double[] { 1, i * .25, .25,    .5,   r.Next(60, 75) }));
 
                 //Capture the note values as Csound parameters in a .net System.Text.StringBuilder
                 var sco = new StringBuilder();
                 foreach (var n in notes)
-                    sco.AppendLine(n.ToString());
+                    sco.AppendLine(n.ToString()); //note.ToString() will look like a score statement
 
                 //Add a major third and time displacement to the Note objects and put them in the score as well.
                 foreach (var n in notes)
                 {
-                    if (n.Pfields.Length > 4) n.Pfields[4] += 4; //pitch (p4)
-                    if (n.Pfields.Length > 1) n.Pfields[1] += .125; //start time (p1)
-                    sco.AppendLine(n.ToString());
+                    if (n.Pfields.Length > 4) n.Pfields[4] += 4; //pitch (p5)
+                    if (n.Pfields.Length > 1) n.Pfields[1] += .125; //start time (p2)
+                    sco.AppendLine(n.ToString()); //More score statements with new freq and start
                 }
 
                 try

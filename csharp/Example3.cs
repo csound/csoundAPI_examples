@@ -25,7 +25,12 @@ namespace csoundAPI_examples
             const string sco = "i1 0 1\n";
             using (var c = new Csound6Net())
             {
-                c.SetOption("-odac");   // Set option for Csound
+                //You can also set the output file or device using SetOutputFileName method in the API
+                // SetOutputFileName(string path, SoundFileType type, SampleFormat format)
+                // or its convenience method for real time output SetOutputDac(int dacNbr)
+                // instead of via command line arguments fed to SetOption(string option) one at a time
+                c.SetOutputDac(0);
+
                 var status = c.CompileOrc(orc);      // Compile Orchestra from String
                 if (status == CsoundStatus.Success)  // Classic csound practice tests compile results before proceeding 
                 {
