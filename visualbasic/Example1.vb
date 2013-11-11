@@ -38,20 +38,15 @@ Partial Public Class Examples
 
     Public Sub Example1()
         'Create an instance of the Csound object 
-        Dim c As New Csound6Net
+        Using c As New Csound6Net
 
-        'Execute within Try/Catch/Finally block to guarantee
-        ' orderly shutdown of csound if exception thrown
-        Try
             'Compile a pre-defined test1.csd file, includes Start()
             c.Compile(New String() {"test1.csd"})
 
             'This call runs Csound to completion (saving Stop() for next example)
             c.Perform()
-        Catch ex As Csound6NetException
-            Console.WriteLine(ex.Message)
-        Finally
-            c.Dispose() 'Make sure csound shuts down properly no matter what
-        End Try
+
+        End Using
+
     End Sub
 End Class

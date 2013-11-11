@@ -9,7 +9,7 @@ using csound6netlib;
 namespace csoundAPI_examples
 {
     /**
-     * Example 9 - More efficient Channel Communications (
+     * Example 9 - More efficient Channel Communications
      *           - Also, using the CSOUND_PARAMS structure (Csound6Parameters object in C#)
      *           
      * This example in the python examples refactors Example 8 to encapsulate channel

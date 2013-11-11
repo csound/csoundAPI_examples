@@ -51,12 +51,11 @@ Public Module Module1
         Dim pgmNbr, subPgmNbr As Integer
 
         Do
-            Console.Write("Enter a test number between 1 and 7 (can be real number for subtests): ")
+            Console.Write("Enter a test number between 1 and 9 (can be real number for subtests): ")
             Dim val = Console.ReadLine()
             If (Double.TryParse(val, choice)) Then
 
                 pgmNbr = choice
-                subPgmNbr = (((choice * 10)) Mod 10)
                 Select Case pgmNbr
 
                     Case 1
@@ -65,10 +64,26 @@ Public Module Module1
                         pgm.Example2()
                     Case 3
                         pgm.Example3()
+                    Case 4
+                        subPgmNbr = (((choice * 10)) Mod 10)
+                        If (subPgmNbr Mod 2) = 0 Then
+                            pgm.Example4()
+                        Else
+                            '       Dim t As Task = pgm.Example41()
+                            '      Task.WaitAny(t)
+                        End If
+
                     Case 5
+                        subPgmNbr = (((choice * 10)) Mod 10)
                         pgm.Example5(subPgmNbr)
+                    Case 6
+                        pgm.Example6()
                     Case 7
                         pgm.Example7()
+                    Case 8
+                        pgm.Example8()
+                    Case 9
+                        pgm.Example9()
                     Case Else
                         choice = -1.0
                 End Select
