@@ -58,7 +58,7 @@ namespace csoundAPI_examples
             double choice = 0.0;
             do
             {
-                Console.Write("\nEnter a test number between 1 and 7 (can be real number for subtests): ");
+                Console.Write("\nEnter a test number between 1 and 9 (can be real number for subtests): ");
                 string val = Console.ReadLine();
                 if (double.TryParse(val, out choice))
                 {
@@ -74,8 +74,8 @@ namespace csoundAPI_examples
                                 pgm.Example4();//use performanceThread
                             else
                             {
-                                var t = pgm.Example41(); //use C# Tasks
-                                Task.WaitAll(t);
+                    //            var t = pgm.Example41(); //use C# Tasks: threading issues still
+                    //            Task.WaitAll(t);
                             }
                             break;
                         case 5: pgm.Example5(subPgmNbr % 3); break;

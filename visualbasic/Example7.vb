@@ -34,37 +34,39 @@ Partial Public Class Examples
     Public Sub Example7()
         Dim amp = New RandomLine(0.4, 0.2) ' create RandomLine for use with Amplitude
         Dim freq = New RandomLine(400, 80) ' create RandomLine for use with Frequency 
-        Dim c As New Csound6NetRealtime
+        Using c As New Csound6NetRealtime
 
-        Try
-            c.SetOption("-odac")    ' Set option for Csound
-            c.SetOption("-m7")      ' Set option for Csound
-            c.CompileOrc(orc3)      ' Compile Orchestra from String
-            c.ReadScore("i1 0 10\n") 'Read in a score to run for 10 seconds 
-            c.Start()          'Must call Start() explicitly when compiling from a string
+            Try
+                c.SetOption("-odac")    ' Set option for Csound
+                c.SetOption("-m7")      ' Set option for Csound
+                c.CompileOrc(orc3)      ' Compile Orchestra from String
+                c.ReadScore("i1 0 10")  'Read in a score to run for 10 seconds 
+                c.Start()          'Must call Start() explicitly when compiling from a string
 
-            Dim bus = c.GetSoftwareBus
-            'Channels can be created explicitly:
-            bus.AddControlChannel("amp", ChannelDirection.Input)
-            bus("amp") = amp.Value  'Add an initial value: Value property changes after each use
+                Dim bus = c.GetSoftwareBus
+                'Channels can be created explicitly:
+                bus.AddControlChannel("amp", ChannelDirection.Input)
+                bus("amp") = amp.Value  'Add an initial value: Value property changes after each use
 
-            'Or channels can be created implicitly just by using it:
-            'The bus's channels can be accessed by name like a dictionary.
-            '/If they don't yet exist, they will be defined (input/output as default)
-            bus("freq") = freq.Value  'Create and provide and initial value in one call
+                'Or channels can be created implicitly just by using it:
+                'The bus's channels can be accessed by name like a dictionary.
+                '/If they don't yet exist, they will be defined (input/output as default)
+                bus("freq") = freq.Value  'Create and provide and initial value in one call
 
-            'Now we have our channels: update them with new RandomLine values after each ksmps cycle:
-            While c.PerformKsmps = False
-                bus("amp") = amp.Value
-                bus("freq") = freq.Value
-            End While
+                'Now we have our channels: update them with new RandomLine values after each ksmps cycle:
+                While c.PerformKsmps = False
+                    bus("amp") = amp.Value
+                    bus("freq") = freq.Value
+                End While
 
-            c.Stop()
-        Catch ex As Exception
-            Console.WriteLine(ex.Message)
-        Finally
-            c.Dispose()
-        End Try
+                c.Stop()
+
+            Catch ex As Exception
+                Console.WriteLine(ex.Message)
+            End Try
+
+        End Using
+
     End Sub
 
     'Used in examples 7,8 and 9

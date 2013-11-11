@@ -14,9 +14,8 @@ Partial Public Class Examples
 
     Public Sub Example3()
         Dim sco = "i1 0 1" & vbCrLf
-        Dim c As New Csound6Net
 
-        Try
+        Using c As New Csound6Net
 
             'You can also set the output file or device using SetOutputFileName method in the API
             'SetOutputFileName(string path, SoundFileType type, SampleFormat format)
@@ -47,11 +46,8 @@ Partial Public Class Examples
                 End If
             End If
 
-        Catch ex As Csound6NetException
-            Console.WriteLine(ex.Message)
-        Finally
-            c.Dispose()
-        End Try
+        End Using
+
     End Sub
 
 End Class

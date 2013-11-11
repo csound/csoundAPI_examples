@@ -16,8 +16,8 @@ namespace csoundAPI_examples
         * continuous control data (k-rate) from a host program to Csound. The 
         * first thing to note is the RandomLine class. It takes in a base value
         * and a range in which to vary randomly.  The reset functions calculates
-        * a new random target value (self.end), a random duration in which to 
-        * run (self.dur, expressed as # of audio blocks to last in duration), and
+        * a new random target value (this.End), a random duration in which to 
+        * run (this.Dur, expressed as # of audio blocks to last in duration), and
         * calculates the increment value to apply to the current value per audio-block.
         * When the target is met, the Randomline will reset itself to a new target
         * value and duration.
@@ -28,8 +28,9 @@ namespace csoundAPI_examples
         * to the channel from the host program.  In this case, because we want to 
         * keep our values generating in sync with the audio engine, we use a 
         * while-loop instead of a CsoundPerformanceThread. To update the channel,
-        * we call the SetChannel method on the Csound object, passing a channel name
-        * and value.  Note: The getValue method on the RandomLine not only gets
+        * we call the SoftwareBus's channel indexer methods with new values.
+        * 
+        * Note: The Value property on the RandomLine objects not only gets
         * us the current value, but also advances the internal state by the increment
         * and by decrementing the duration.
         * 
@@ -52,7 +53,7 @@ namespace csoundAPI_examples
                 var bus = c.GetSoftwareBus();
                 //Channels can be created explicitly:
                 bus.AddControlChannel("amp", ChannelDirection.Input);
-                bus["amp"] = amp.Value;  //Add initial value: Value property changes after each use
+                bus["amp"] = amp.Value;  //Add an initial value: Value property changes after each use
 
                 //Or channels can be created implicitly just by using it:
                 //The bus's channels can be accessed by name like a dictionary.

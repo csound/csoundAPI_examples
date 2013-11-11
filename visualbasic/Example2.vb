@@ -12,8 +12,8 @@ Partial Public Class Examples
     ' source, such as from a database or network.
 
     Public Sub Example2()
-        Dim c As New Csound6Net
-        Try
+
+        Using c As New Csound6Net
 
             'Using SetOption() to configure Csound: here to output in realtime
             c.SetOption("-odac")    'Note: SetOption uses only one commandline flag per call
@@ -26,11 +26,8 @@ Partial Public Class Examples
             c.Stop()    'At this point, Csound is already stopped, but this call is here
             'as it is something that you would generally call in real-world contexts.
 
-        Catch ex As Csound6NetException
-            Console.WriteLine(ex.Message)
-        Finally
-            c.Dispose()
-        End Try
+        End Using
+
     End Sub
 
     'Used in examples 2, 3 and 4

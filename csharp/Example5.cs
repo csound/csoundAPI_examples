@@ -36,9 +36,9 @@ namespace csoundAPI_examples
          * like a list, or it may be represented by using a class and instances of that
          * class. 
          *
-         * Note, the three examples here are indicated with comments.  To listen to the examples,
-         * look for the lines that have c.ReadScore(sco) (lines 80-82), uncomment the one
-         * you want to hear, and comment out the others. 
+         * Note, the three examples here are indicated within case statement. To listen to the examples,
+         * use a real number when selecting Example 5: 5.0 for the single note, 5.1 for the
+         * chromatic scale and 5.2 for random pitches.
          */
         public void Example5(int algorithm)
         {
@@ -47,15 +47,15 @@ namespace csoundAPI_examples
             switch (algorithm) //integer between 0 and 2
             {
                 case 1:
-                    for (int i = 0; i < 13; i++)
+                    for (int i = 0; i < 13; i++) //Chromatic Scale
                         sco.AppendLine(string.Format("i1 {0} .25 0.5 8.{1:00}", (i * .25), i));
                     break;
                 case 2:
                     var vals = new List<double[]>(); //initialize a list to hold lists of doubles 
                     Random r = new Random();
-                    for (int i = 0; i < 13; i++)     // populate that list
+                    for (int i = 0; i < 13; i++)     // populate that list with note parameters
                         vals.Add(new double[] { i * .25, .25, 0.5, r.Next(15) });
-                    // convert list of lists into a list of strings
+                    // convert list of lists into a list of strings with random frequencys
                     foreach (var val in vals)
                         sco.AppendLine(string.Format("i1 {0} {1} {2} 8.{3:00}", val[0], val[1], val[2], (int)val[3]));
                     break;

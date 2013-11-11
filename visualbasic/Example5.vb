@@ -4,7 +4,7 @@ Imports csound6netlib
 
 Partial Public Class Examples
 
-    ' Example 5 - Generating a Score
+    ' Example 5 - Generating a Score, VB Try/Catch blocks
 
     ' In this example, we will look at three techniques for generating our Score. 
     ' The first is one we have already seen, which is to just write out the score
@@ -35,10 +35,11 @@ Partial Public Class Examples
     ' chromatic scale and 5.2 for random pitches.
 
     Public Sub Example5(algorithm As Integer)
-        Dim c As New Csound6Net
-        'Choose one of 3 ways to create a score: sequential pitches, random pitches, or hard-coded
+
         Dim sco As New StringBuilder
 
+
+        'Choose one of 3 ways to create a score: sequential pitches, random pitches, or hard-coded
         Select Case algorithm 'integer between 0 and 2
             Case 1
                 For i = 0 To 12
@@ -52,28 +53,34 @@ Partial Public Class Examples
                 Next i
                 ' convert list of lists into a list of strings with random frequencys
                 For Each val As Double() In vals
-                    sco.AppendLine(String.Format("i1 {0} {1} {2} 8.{3:00}", val(0), val(1), val(2), Int(val(3))))
+                    sco.AppendLine(String.Format("i1 {0} {1} {2} 8.{3:00}", val(0), val(1), val(2), CInt(val(3))))
                 Next val
             Case Else
                 sco.AppendLine("i1 0 1 0.5 8.00")
         End Select
 
-        Try
+        ' Once a score string has been algorithmically assembled, do the usual csound loop.
+        ' This time, we'll let C# Exceptions (try/catch) handle testing status for us.
+        ' By catching the exception, we are assured exiting the "using" block
+        ' and thereby disposing of csound and its memory correctly.
+
+        Using c As New Csound6Net
+
             c.SetOutputDac(0)   ' Set realtime output 
 
-            c.CompileOrc(orc2)          ' Compile different Orchestra with moogladder 
-            c.ReadScore(sco.ToString()) ' Read in score as built above 
-            c.Start()                   ' When compiling from strings, this call needed before performing
+            Try
+                c.CompileOrc(orc2)          ' Compile different Orchestra with moogladder 
+                c.ReadScore(sco.ToString()) ' Read in score as built above 
+                c.Start()                   ' When compiling from strings, this call needed before performing
 
-            While c.PerformKsmps() = False 'Play score until csound says it is over
-            End While
+                While c.PerformKsmps() = False 'Play score until csound says it is over
+                End While
 
-            c.Stop()
-        Catch ex As Csound6NetException
-            Console.WriteLine(ex.Message)
-        Finally
-            c.Dispose()
-        End Try
+                c.Stop()
+            Catch ex As Csound6NetException
+                Console.WriteLine(ex.Message)
+            End Try
+        End Using
 
     End Sub
 
