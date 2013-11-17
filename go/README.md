@@ -7,5 +7,5 @@ This folder contains examples for using the Csound API in Go. They start with a 
 ## Useful Notes
 
 * It is assumed that you have installed the go-csnd6 package from "https://github.com/fggp/go-csnd6".
-* To run an example, in a terminal, type "go run" followed by the example file. For example, to run example01.py, use "go run example01.py".
+* To run an example, in a terminal, type "go run" followed by the example file. For example, to run example01.go, use "go run example01.go".
 
