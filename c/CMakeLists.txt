@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project (csound_api_examples)
 
-# TODO - need to fix library and include path finding
-
 if(APPLE)
   set(CS_LIB CsoundLib64)
 else()
@@ -10,9 +8,18 @@ else()
 endif()
 
 find_library(CS_LIB_PATH ${CS_LIB})
+find_path(CSOUND_H_PATH csound.h)
+
+if(NOT CS_LIB_PATH)
+    message(ERROR "Unable to find library: ${CS_LIB}")
+endif()
+
+if(NOT CSOUND_H_PATH)
+    message(ERROR "Unable to find csound.h.")
+endif()
 
 add_definitions(-DUSE_DOUBLE=1) 
-include_directories(~/Library/Frameworks/CsoundLib64.framework/Headers)
+include_directories(${CSOUND_H_PATH})
 
 function(make_example name src)
   add_executable(${name} ${src})
