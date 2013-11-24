@@ -27,7 +27,7 @@ nchnls=2
 gkpch chnexport "freq", 1
 
 instr 1 
-kpch port gkpch, 0.5
+kpch port gkpch, 0.01, i(gkpch)
 printk .5, gkpch
 kenv linsegr 0, .05, 1, .05, .9, .8, 0
 aout vco2 p4 * kenv, kpch

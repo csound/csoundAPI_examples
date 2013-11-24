@@ -51,7 +51,7 @@ nchnls=2
 gkpch chnexport \"freq\", 1
 
 instr 1 
-kpch port gkpch, 0.5
+kpch port gkpch, 0.01, i(gkpch)
 printk .05, gkpch
 kenv linsegr 0, .05, 1, .05, .9, .8, 0
 aout vco2 p4 * kenv, kpch
@@ -77,6 +77,7 @@ endin")
       button (JButton. "Play Note")
       slider (JSlider. 80 600)
       ]
+  (.SetValue freq-channel 0 (.getValue slider))
   (.addActionListener button 
                       (proxy [ActionListener] []
                         (actionPerformed [evt]
