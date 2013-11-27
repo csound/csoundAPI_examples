@@ -97,9 +97,9 @@ outs aout, aout
 endin`
 
 // The process callback function. It will receive an unsafe.Pointer type
-// corresponding to the C void * type. It is the responsibility of the user
+// corresponding to the C void* type. It is the responsibility of the user
 // to know the underlying type that is pointed to, so that the correct cast
-// is performed before using the data.
+// is done before using the data.
 func processCallback(data unsafe.Pointer) {
 	channels := (*[]ChannelUpdater)(data)
 	for _, chn := range *channels {
@@ -134,8 +134,8 @@ func main() {
 	t := csnd6.NewCsoundPerformanceThread(c) // Create a new CsoundPerformanceThread, passing in the Csound object
 
 	// We set the thread process callback function and we transmit to the thread
-	// an untyped pointer to some user data. This pointer will be passed to the callback each
-	// callback each time it is invoked by the thread.
+	// an untyped pointer to some user data. This pointer will be passed to the callback
+	// each time it is invoked by the thread.
 	t.SetProcessCallback(processCallback, unsafe.Pointer(&channels))
 
 	t.Play() // starts the thread, which is now running separately from the main thread. This
