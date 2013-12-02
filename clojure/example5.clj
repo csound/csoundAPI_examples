@@ -55,7 +55,7 @@ endin")
 
 
 ; Example 1 - Static Score 
-(def sco "i1 0 1")
+(def sco "i1 0 1 0.5 8.00")
 
 ;# Example 2 - Generating Score string using a map with range sequence
 (def sco2
@@ -82,9 +82,9 @@ endin")
   (.SetOption c "-odac") ; Using SetOption() to configure Csound
   ; Note: use only one commandline flag at a time
   (.CompileOrc c orc)    ; Compile the Csound Orchestra String
-  (.ReadScore c sco)     ; Read in Score from pre-written String 
+  ;(.ReadScore c sco)     ; Read in Score from pre-written String 
   ;(.ReadScore c sco2)     ; Read in Score from sequence generated String 
-  ;(.ReadScore c sco3)     ; Read in Score from sequence generated String 
+  (.ReadScore c sco3)     ; Read in Score from sequence generated String 
   (.Start c)             ; When compiling from strings, this call is necessary before doing any performing 
 
   ; The following is our main performance loop. We will perform one block of sound at a time 
