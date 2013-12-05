@@ -81,18 +81,22 @@ csnd6.csoundInitialize(
         csnd6.CSOUNDINIT_NO_ATEXIT | csnd6.CSOUNDINIT_NO_SIGNAL_HANDLER)
 
 // Defining our Csound ORC code within a String
-def orc = """sr=44100
-        ksmps=32
-        nchnls=2
-        0dbfs=1
-        
-        instr 1 
-        ipch = cps2pch(p5, 12)
-        kenv linsegr 0, .05, 1, .05, .7, .4, 0
-        aout vco2 p4 * kenv, ipch 
-        aout moogladder aout, 2000, 0.25
-        outs aout, aout
-        endin"""
+def orc = """
+
+sr=44100
+ksmps=32
+nchnls=2
+0dbfs=1
+
+instr 1 
+ipch = cps2pch(p5, 12)
+kenv linsegr 0, .05, 1, .05, .7, .4, 0
+aout vco2 p4 * kenv, ipch 
+aout moogladder aout, 2000, 0.25
+outs aout, aout
+endin
+
+"""
 
 /* SCORE EXAMPLES */
 
