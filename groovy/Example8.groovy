@@ -117,8 +117,8 @@ def freq = new RandomLine(400, 80)
 
 
 // create a CsoundMYFLTArray of size 1 
-CsoundMYFLTArray ampChannel = new CsoundMYFLTArray(1)
-CsoundMYFLTArray freqChannel = new CsoundMYFLTArray(1)  
+def ampChannel = new CsoundMYFLTArray(1)
+def freqChannel = new CsoundMYFLTArray(1)  
 
 // the following calls store the Channel Pointer retreived from Csound 
 // into the CsoundMYFLTArray Objects
