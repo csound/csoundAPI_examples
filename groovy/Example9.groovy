@@ -52,7 +52,7 @@ class RandomLine {
   * Creates a Csound Channel and returns a CsoundMYFLTArray wrapper object
   */
 def createChannel(Csound csound, String channelName) {
-    CsoundMYFLTArray channel = new CsoundMYFLTArray(1)
+    def channel = new CsoundMYFLTArray(1)
 
     csound.GetChannelPtr(channel.GetPtr(), channelName,
             controlChannelType.CSOUND_CONTROL_CHANNEL.swigValue()

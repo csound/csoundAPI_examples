@@ -12,24 +12,24 @@
  *
  * @author stevenyi
  */
-import csnd6.csnd6;
-import csnd6.Csound;
+import csnd6.csnd6
+import csnd6.Csound
 
 csnd6.csoundInitialize(
-        csnd6.CSOUNDINIT_NO_ATEXIT | csnd6.CSOUNDINIT_NO_SIGNAL_HANDLER);
+        csnd6.CSOUNDINIT_NO_ATEXIT | csnd6.CSOUNDINIT_NO_SIGNAL_HANDLER)
 
 // Create an instance of the Csound object
-Csound c = new Csound();
+Csound c = new Csound()
 
 // Compile a pre-defined test1.csd file
 // This path should be modified for your own path on your computer
-c.Compile("/Users/stevenyi/csapiexamples/java/test1.csd");
+c.Compile("test1.csd")
 
 // This call runs Csound to completion
-c.Perform();               
+c.Perform()               
 
 // At this point, Csound is already stopped, but this call is here
 // as it is something that you would generally call in real-world 
 // contexts
-c.Stop();                                                               
+c.Stop()                                                               
 

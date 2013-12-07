@@ -18,7 +18,7 @@
  * list represents our score as a whole, and each sub-list within it represents
  * the data for a single note. The main list is then processed in two ways:
  * first, it processes each sub-list and joins the values together into a single
- * note string; second, it joins each individual note string into a single,
+ * note string second, it joins each individual note string into a single,
  * large score string, separated by newlines. The end result is a sequence of 13
  * notes with random pitches.
  *
@@ -32,10 +32,10 @@
  * examples, look for the lines that have c.ReadScore(sco) (lines 135-137),
  * uncomment the one you want to hear, and comment out the others.
  */
-import csnd6.csnd6;
-import csnd6.Csound;
-import java.util.ArrayList;
-import java.util.List;
+import csnd6.csnd6
+import csnd6.Csound
+import java.util.ArrayList
+import java.util.List
 
 
 def example1() {
@@ -45,7 +45,7 @@ def example1() {
 def example2() {
 
     def sco2 = new StringBuilder()
-    for (int i = 0; i < 13; i++) {
+    for (int i = 0 i < 13 i++) {
         sco2.append(
                 String.format("i1 %g .25 0.5 8.%02d\n", i * 0.25, i))
     }
@@ -54,10 +54,10 @@ def example2() {
 }
 
 def example3() {
-    def vals = [];
+    def vals = []
 
     // initialize a list to hold lists of values 
-    for (int i = 0; i < 13; i++) {
+    for (i in 0..12) {
         def values = []
         values[0] = 1
         values[1] = i * 0.25
@@ -68,7 +68,7 @@ def example3() {
     }
 
     // convert list of values into a single string
-    StringBuilder buffer = new StringBuilder();
+    StringBuilder buffer = new StringBuilder()
     for (list in vals) {
         buffer.append("i").append(list.collect{it.toString()}.join(' ')).append("\n")
     }
@@ -79,7 +79,7 @@ def example3() {
 
 
 csnd6.csoundInitialize(
-        csnd6.CSOUNDINIT_NO_ATEXIT | csnd6.CSOUNDINIT_NO_SIGNAL_HANDLER);
+        csnd6.CSOUNDINIT_NO_ATEXIT | csnd6.CSOUNDINIT_NO_SIGNAL_HANDLER)
 
 // Defining our Csound ORC code within a String
 def orc = """sr=44100
@@ -110,23 +110,23 @@ def sco3 = example3()
 /* END SCORE EXAMPLES */
 
 // Create an instance of the Csound object
-Csound c = new Csound();
+Csound c = new Csound()
 
 // Using SetOption() to configure Csound
 // Note: use only one commandline flag at a time 
-c.SetOption("-odac");
+c.SetOption("-odac")
 
 // Compile the Csound Orchestra string
-c.CompileOrc(orc);
+c.CompileOrc(orc)
 
 // Compile the Csound SCO String
-//        c.ReadScore(sco);
-//        c.ReadScore(sco2);
-c.ReadScore(sco3);
+//        c.ReadScore(sco)
+//        c.ReadScore(sco2)
+c.ReadScore(sco3)
 
 // When compiling from strings, this call is necessary before doing 
 // any performing
-c.Start();
+c.Start()
 
 // The following is our main performance loop. We will perform one block 
 // of sound at a time and continue to do so while it returns 0, which 
@@ -139,9 +139,9 @@ while (c.PerformKsmps() == 0) {
 
 
 // stops Csound
-c.Stop();
+c.Stop()
 
-// clean up Csound; this is useful if you're going to reuse a Csound 
+// clean up Csound this is useful if you're going to reuse a Csound 
 // instance
-c.Cleanup();
+c.Cleanup()
 

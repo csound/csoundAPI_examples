@@ -16,12 +16,12 @@
  * @author stevenyi
  */
 
-import csnd6.csnd6;
-import csnd6.Csound;
-import csnd6.CsoundPerformanceThread;
+import csnd6.csnd6
+import csnd6.Csound
+import csnd6.CsoundPerformanceThread
 
 csnd6.csoundInitialize(
-        csnd6.CSOUNDINIT_NO_ATEXIT | csnd6.CSOUNDINIT_NO_SIGNAL_HANDLER);
+        csnd6.CSOUNDINIT_NO_ATEXIT | csnd6.CSOUNDINIT_NO_SIGNAL_HANDLER)
 
 // Defining our Csound ORC code within a String
 String orc = """sr = 44100
@@ -32,46 +32,46 @@ String orc = """sr = 44100
         instr 1
         aout vco2 0.5, 440
         outs aout, aout
-        endin""";
+        endin"""
 
 // Defining our Csound SCO code 
-String sco = "i1 0 1";
+String sco = "i1 0 1"
 
 // Create an instance of the Csound object
-Csound c = new Csound();
+Csound c = new Csound()
 
 // Using SetOption() to configure Csound
 // Note: use only one commandline flag at a time 
-c.SetOption("-odac");
+c.SetOption("-odac")
 
 // Compile the Csound Orchestra string
-c.CompileOrc(orc);
+c.CompileOrc(orc)
 
 // Compile the Csound SCO String
-c.ReadScore(sco);
+c.ReadScore(sco)
 
 // When compiling from strings, this call is necessary before doing 
 // any performing
-c.Start();
+c.Start()
 
 // Create a new CsoundPerformanceThread, passing in the Csound object
-CsoundPerformanceThread t = new CsoundPerformanceThread(c);  
+CsoundPerformanceThread t = new CsoundPerformanceThread(c)  
 
 // starts the thread, which is now running separately from the main 
 // thread. This call is asynchronous and will immediately return back 
 // here to continue code execution.
-t.Play();
+t.Play()
 
 // Join will wait for the other thread to complete. If we did not call 
 // Join(), after t.Play() returns we would immediate move to the next 
 // line, c.Stop(). That would stop Csound without really giving it time 
 // to run. 
-t.Join();
+t.Join()
 
 // stops Csound
-c.Stop();
+c.Stop()
 
-// clean up Csound; this is useful if you're going to reuse a Csound 
+// clean up Csound this is useful if you're going to reuse a Csound 
 // instance
-c.Cleanup();           
+c.Cleanup()           
 
