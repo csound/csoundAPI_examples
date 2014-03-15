@@ -35,9 +35,9 @@ func (rl *RandomLine) Reset() {
 	rl.increment = (rl.end - rl.curVal) / rl.dur
 }
 
-// The receiver has to be a pointer because the GetValue function
+// The receiver has to be a pointer because the Value function
 // changes the value of the receiver members
-func (rl *RandomLine) GetValue() csnd6.MYFLT {
+func (rl *RandomLine) Value() csnd6.MYFLT {
 	rl.dur -= 1
 	if rl.dur < 0 {
 		rl.Reset()
@@ -48,11 +48,11 @@ func (rl *RandomLine) GetValue() csnd6.MYFLT {
 }
 
 type Updater interface {
-	GetValue() csnd6.MYFLT
+	Value() csnd6.MYFLT
 }
 
 func createChannel(csound csnd6.CSOUND, channelName string) []csnd6.MYFLT {
-	chn, err := csound.GetChannelPtr(channelName,
+	chn, err := csound.ChannelPtr(channelName,
 		csnd6.CSOUND_CONTROL_CHANNEL|csnd6.CSOUND_INPUT_CHANNEL)
 	if err != nil {
 		panic(err)
@@ -74,7 +74,7 @@ func NewChannelUpdater(csound csnd6.CSOUND, channelName string, updater Updater)
 }
 
 func (cu ChannelUpdater) Update() {
-	cu.channel[0] = cu.updater.GetValue()
+	cu.channel[0] = cu.updater.Value()
 }
 
 // Our Orchestra for our project

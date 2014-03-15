@@ -51,9 +51,9 @@ func (rl *RandomLine) Reset() {
 	rl.increment = (rl.end - rl.curVal) / rl.dur
 }
 
-// The receiver has to be a pointer because the GetValue function
+// The receiver has to be a pointer because the Value function
 // changes the value of the receiver members
-func (rl *RandomLine) GetValue() csnd6.MYFLT {
+func (rl *RandomLine) Value() csnd6.MYFLT {
 	rl.dur -= 1
 	if rl.dur < 0 {
 		rl.Reset()
@@ -95,15 +95,15 @@ func main() {
 	amp := NewRandomLine(.4, .2)   // create RandomLine for use with Amplitude
 	freq := NewRandomLine(400, 80) // create RandomLine for use with Frequency
 
-	c.SetControlChannel("amp", amp.GetValue())   // Initialize channel value before running Csound
-	c.SetControlChannel("freq", freq.GetValue()) // Initialize channel value before running Csound
+	c.SetControlChannel("amp", amp.Value())   // Initialize channel value before running Csound
+	c.SetControlChannel("freq", freq.Value()) // Initialize channel value before running Csound
 
 	// The following is our main performance loop. We will perform one block of sound at a time
 	// and continue to do so while it returns 0, which signifies to keep processing.
 
 	for c.PerformKsmps() == 0 {
-		c.SetControlChannel("amp", amp.GetValue())   // update channel value
-		c.SetControlChannel("freq", freq.GetValue()) // update channel value
+		c.SetControlChannel("amp", amp.Value())   // update channel value
+		c.SetControlChannel("freq", freq.Value()) // update channel value
 	}
 	c.Stop()
 }
