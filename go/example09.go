@@ -37,9 +37,9 @@ func (rl *RandomLine) Reset() {
 	rl.increment = (rl.end - rl.curVal) / rl.dur
 }
 
-// The receiver has to be a pointer because the GetValue function
+// The receiver has to be a pointer because the Value function
 // changes the value of the receiver members
-func (rl *RandomLine) GetValue() csnd6.MYFLT {
+func (rl *RandomLine) Value() csnd6.MYFLT {
 	rl.dur -= 1
 	if rl.dur < 0 {
 		rl.Reset()
@@ -50,7 +50,7 @@ func (rl *RandomLine) GetValue() csnd6.MYFLT {
 }
 
 func createChannel(csound csnd6.CSOUND, channelName string) []csnd6.MYFLT {
-	chn, err := csound.GetChannelPtr(channelName,
+	chn, err := csound.ChannelPtr(channelName,
 		csnd6.CSOUND_CONTROL_CHANNEL|csnd6.CSOUND_INPUT_CHANNEL)
 	if err != nil {
 		panic(err)
@@ -93,12 +93,12 @@ func main() {
 	amp := NewRandomLine(.4, .2)
 	freq := NewRandomLine(400, 80)
 
-	ampChannel[0] = amp.GetValue()
-	freqChannel[0] = freq.GetValue()
+	ampChannel[0] = amp.Value()
+	freqChannel[0] = freq.Value()
 
 	for c.PerformKsmps() == 0 {
-		ampChannel[0] = amp.GetValue()
-		freqChannel[0] = freq.GetValue()
+		ampChannel[0] = amp.Value()
+		freqChannel[0] = freq.Value()
 	}
 	c.Stop()
 }

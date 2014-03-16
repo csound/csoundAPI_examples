@@ -3,11 +3,11 @@
 // from the original python example by Steven Yi <stevenyi@gmail.com>
 //
 // This example builds on Example 7 by replacing the calls to SetChannel
-// with using GetChannelPtr. In the Csound API, using SetChannel and GetChannel
+// with using ChannelPtr. In the Csound API, using SetChannel and Channel
 // is great for quick work, but ultimately it is slower than pre-fetching the
-// actual channel pointer. This is because Set/GetChannel operates by doing a
+// actual channel pointer. This is because SetChannel/Channel operates by doing a
 // lookup of the Channel Pointer, then setting or getting the value. This
-// happens on each call. The alternative is to use GetChannelPtr, which fetches
+// happens on each call. The alternative is to use ChannelPtr, which fetches
 // the Channel Pointer and lets you directly set and get the value on the pointer.
 //
 // In C/C++/Objective-C, one can directly use MYFLT* to get/set values. However,
@@ -17,7 +17,7 @@
 // The []csnd6.MYFLT in turn is used in the classical Go way for setting
 // and getting values.
 //
-// The code below shows how to use the []csnd6.MYFLT in conjunction with GetChannelPtr
+// The code below shows how to use the []csnd6.MYFLT in conjunction with ChannelPtr
 // to have a more optimized channel setting system.
 
 package main
@@ -48,9 +48,9 @@ func (rl *RandomLine) Reset() {
 	rl.increment = (rl.end - rl.curVal) / rl.dur
 }
 
-// The receiver has to be a pointer because the GetValue function
+// The receiver has to be a pointer because the Value function
 // changes the value of the receiver members
-func (rl *RandomLine) GetValue() csnd6.MYFLT {
+func (rl *RandomLine) Value() csnd6.MYFLT {
 	rl.dur -= 1
 	if rl.dur < 0 {
 		rl.Reset()
@@ -91,12 +91,12 @@ func main() {
 
 	// the following calls store the Channel Pointer retreived from Csound into the
 	// returned []csnd6.MYFLT slices
-	ampChannel, err := c.GetChannelPtr("amp",
+	ampChannel, err := c.ChannelPtr("amp",
 		csnd6.CSOUND_CONTROL_CHANNEL|csnd6.CSOUND_INPUT_CHANNEL)
 	if err != nil {
 		panic(err)
 	}
-	freqChannel, err := c.GetChannelPtr("freq",
+	freqChannel, err := c.ChannelPtr("freq",
 		csnd6.CSOUND_CONTROL_CHANNEL|csnd6.CSOUND_INPUT_CHANNEL)
 	if err != nil {
 		panic(err)
@@ -105,12 +105,12 @@ func main() {
 	amp := NewRandomLine(.4, .2)
 	freq := NewRandomLine(400, 80)
 
-	ampChannel[0] = amp.GetValue() // note we are now setting values on the []csnd6.MYFLT slice
-	freqChannel[0] = freq.GetValue()
+	ampChannel[0] = amp.Value() // note we are now setting values on the []csnd6.MYFLT slice
+	freqChannel[0] = freq.Value()
 
 	for c.PerformKsmps() == 0 {
-		ampChannel[0] = amp.GetValue()
-		freqChannel[0] = freq.GetValue()
+		ampChannel[0] = amp.Value()
+		freqChannel[0] = freq.Value()
 	}
 	c.Stop()
 }
