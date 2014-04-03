@@ -7,7 +7,7 @@
 ; then Stop and exit.  
 ;
 ; The first thing we do is import the csnd6 module, which is the module 
-; containing the Python interface to the Csound API.
+; containing the Java interface to the Csound API.
 
 (import (csnd6 csnd6 Csound))
 

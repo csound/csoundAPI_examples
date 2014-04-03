@@ -4,9 +4,7 @@
 ;
 ; In this example, we use a CsoundPerformanceThread to run Csound in 
 ; a native thread.  Using a native thread is important to get the best
-; runtime performance for the audio engine.  It is especially important
-; for languages such as Python that do not have true native threads
-; and that use a Global Interpreter Lock. CsoundPerformanceThread has
+; runtime performance for the audio engine. CsoundPerformanceThread has
 ; some convenient methods for handling events, but does not have
 ; features for doing regular processing at block boundaries.  In general,
 ; use CsoundPerformanceThread when the only kinds of communication you

@@ -3,7 +3,7 @@
 ; 2013.10.28
 ;
 ; In this example, we move from using an external CSD file to 
-; embedding our Csound ORC and SCO code within our Python project.
+; embedding our Csound ORC and SCO code within our Clojure project.
 ; Besides allowing encapsulating the code within the same file,
 ; using the CompileOrc() and CompileSco() API calls is useful when
 ; the SCO or ORC are generated, or perhaps coming from another 
