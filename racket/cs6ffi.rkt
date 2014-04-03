@@ -3,7 +3,7 @@
 ; Csound 6 FFI Interface
 ; Author: Steven Yi<stevenyi@gmail.com>
 
-(provide csound-create csound-compile csound-perform csound-stop)
+(provide csound-initialize csound-create csound-compile csound-perform csound-stop)
         
 (require racket/system
          ffi/unsafe
@@ -14,10 +14,14 @@
 (define _CSOUND-pointer (_cpointer 'CSOUND))
 
 
+(define-csound csoundInitialize (_fun _int -> _void))
 (define-csound csoundCreate (_fun -> _CSOUND-pointer))
 (define-csound csoundCompile (_fun _CSOUND-pointer _int  (_array/list _string 2) -> _int))
 (define-csound csoundPerform (_fun _CSOUND-pointer -> _int))
 (define-csound csoundStop (_fun _CSOUND-pointer -> _void))
+
+(define (csound-initialize flags)
+  (csoundInitialize flags))
 
 (define csound-create csoundCreate)
 
