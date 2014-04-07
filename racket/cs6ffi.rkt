@@ -5,7 +5,8 @@
 
 (provide csound-initialize csound-create csound-set-option 
          csound-compile csound-compile-orc csound-read-score
-         csound-start csound-perform csound-stop)
+         csound-start csound-perform csound-perform-ksmps 
+         csound-stop)
         
 (require racket/system
          ffi/unsafe
@@ -25,6 +26,7 @@
 (define-csound csoundCompile (_fun _CSOUND-pointer _int  (_array/list _string 2) -> _int))
 (define-csound csoundStart (_fun _CSOUND-pointer -> _int))
 (define-csound csoundPerform (_fun _CSOUND-pointer -> _int))
+(define-csound csoundPerformKsmps (_fun _CSOUND-pointer -> _int))
 (define-csound csoundStop (_fun _CSOUND-pointer -> _void))
 
 
@@ -41,4 +43,5 @@
 
 (define csound-start csoundStart)
 (define csound-perform csoundPerform)
+(define csound-perform-ksmps csoundPerformKsmps)
 (define csound-stop csoundStop)
