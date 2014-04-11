@@ -12,7 +12,17 @@
          ffi/unsafe
          ffi/unsafe/define)
 
-(define-ffi-definer define-csound (ffi-lib "libcsound64"))
+(define cs-lib-osx-local-framework 
+  (string-append (path->string (find-system-path 'home-dir)) "/Library/Frameworks/CsoundLib64.framework/CsoundLib64"))
+(define cs-lib-osx-global-framework "/Library/Frameworks/CsoundLib64.framework/CsoundLib64")
+(define cs-lib-default "libcsound64") 
+(define cs-lib  
+  (cond 
+    [(file-exists? cs-lib-osx-local-framework) cs-lib-osx-local-framework ]
+    [(file-exists? cs-lib-osx-global-framework) cs-lib-osx-global-framework ]
+    [else cs-lib-default ]))
+  
+(define-ffi-definer define-csound (ffi-lib cs-lib))
 
 (define _CSOUND-pointer (_cpointer 'CSOUND))
 
