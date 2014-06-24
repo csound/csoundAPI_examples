@@ -14,7 +14,10 @@
 
 package main
 
-import "github.com/fggp/go-csnd6"
+import (
+	"github.com/fggp/go-csnd6"
+	"github.com/fggp/go-csperfthread"
+)
 
 // Our Orchestra for our project
 var orc string = `
