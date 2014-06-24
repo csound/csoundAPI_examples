@@ -9,8 +9,8 @@
 package main
 
 import (
-	csnd6 "github.com/fggp/go-csnd6"
-	cspt "github.com/fggp/go-csperfthread"
+	"github.com/fggp/go-csnd6"
+	"github.com/fggp/go-csperfthread"
 	"math/rand"
 	"unsafe"
 )
@@ -132,7 +132,7 @@ func main() {
 		chn.Update()
 	}
 
-	t := cspt.NewCsoundPerformanceThread(c) // Create a new CsoundPerformanceThread, passing in the Csound object
+	t := csperfthread.NewCsoundPerformanceThread(c) // Create a new CsoundPerformanceThread, passing in the Csound object
 
 	// We set the thread process callback function and we transmit to the thread
 	// an untyped pointer to some user data. This pointer will be passed to the callback

@@ -11,7 +11,7 @@
 
 package main
 
-import csnd6 "github.com/fggp/go-csnd6"
+import "github.com/fggp/go-csnd6"
 
 func main() {
 	args := []string{"example01.go", "test1.csd"}
