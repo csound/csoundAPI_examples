@@ -14,7 +14,7 @@
 
 package main
 
-import csnd6 "github.com/fggp/go-csnd6"
+import "github.com/fggp/go-csnd6"
 
 // Our Orchestra for our project
 var orc string = `
@@ -38,7 +38,7 @@ func main() {
 	c.ReadScore(sco)       // Read in Score from String
 	c.Start()              // When compiling from strings, this call is necessary before doing any performing
 
-	t := csnd6.NewCsoundPerformanceThread(c) // Create a new CsoundPerformanceThread, passing in the Csound object
+	t := csperfthread.NewCsoundPerformanceThread(c) // Create a new CsoundPerformanceThread, passing in the Csound object
 
 	t.Play() // starts the thread, which is now running separately from the main thread. This
 	//          call is asynchronous and will immediately return back here to continue code

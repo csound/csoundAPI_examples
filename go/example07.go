@@ -26,7 +26,7 @@
 package main
 
 import (
-	csnd6 "github.com/fggp/go-csnd6"
+	"github.com/fggp/go-csnd6"
 	"math/rand"
 )
 

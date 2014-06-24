@@ -11,7 +11,7 @@
 
 package main
 
-import csnd6 "github.com/fggp/go-csnd6"
+import "github.com/fggp/go-csnd6"
 
 // Defining our Csound ORC code within a triple-quoted, multline String
 var orc string = `
