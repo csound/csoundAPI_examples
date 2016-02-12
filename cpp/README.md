@@ -1,6 +1,6 @@
 #Csound 6 - C++ API Examples
 
-Index:
+**Examples**
 
 [SimpleCsdPlayback.cpp](SimpleCsdPlayback.cpp): Illustrates how to create an instance of the Csound class and start playback of a .csd 
 
