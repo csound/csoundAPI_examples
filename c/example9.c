@@ -130,6 +130,7 @@ int main(int arg, char** argv) {
     }
 
     csoundStop(csound);
+    return 0;
 }
 
 

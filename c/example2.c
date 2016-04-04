@@ -50,6 +50,8 @@ int main(int arg, char** argv) {
   csoundPerform(csound);
 
   csoundStop(csound);
+
+  return 0;
 }
 
 

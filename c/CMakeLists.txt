@@ -18,7 +18,7 @@ if(NOT CSOUND_H_PATH)
     message(ERROR "Unable to find csound.h.")
 endif()
 
-add_definitions(-DUSE_DOUBLE=1) 
+#add_definitions(-DUSE_DOUBLE=1) 
 include_directories(${CSOUND_H_PATH})
 
 function(make_example name src)

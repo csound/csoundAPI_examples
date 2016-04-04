@@ -17,4 +17,6 @@ int main(int arg, char** argv) {
   csoundCompile(csound, 2, args);  
   csoundPerform(csound);
   csoundStop(csound);
+
+  return 0;
 }

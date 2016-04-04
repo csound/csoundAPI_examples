@@ -75,7 +75,9 @@ int main(int arg, char** argv) {
   /* clean up Csound; this is useful if you're going to reuse a Csound 
    * instance 
    */
-  csoundCleanup(csound);           
+  csoundCleanup(csound);
+
+  return 0;
 }
 
 /* Our performance function for the thread.  This will run Csound to 

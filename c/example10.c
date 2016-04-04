@@ -171,6 +171,7 @@ int main(int arg, char** argv) {
     csoundStop(csound);
     free(channel_updaters[0]);
     free(channel_updaters[1]);
+    return 0;
 }
 
 
