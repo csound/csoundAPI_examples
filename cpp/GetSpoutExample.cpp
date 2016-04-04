@@ -29,7 +29,7 @@ int sampleCount=0;
 MYFLT simpleRamp[44100];
 for(int i=0;i<44100;i++)
 {
-	simpleWaveform[i] = (float)i/44100.f;
+	simpleRamp[i] = (float)i/44100.f;
 }
 
 //Create an instance of Csound
