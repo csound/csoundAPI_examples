@@ -11,7 +11,7 @@
 
 import csnd6
 
-# Defining our Csound ORC code within a triple-quoted, multline String
+# Defining our Csound ORC code within a triple-quoted, multiline String
 orc = """
 sr=44100
 ksmps=32

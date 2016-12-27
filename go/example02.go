@@ -13,7 +13,7 @@ package main
 
 import "github.com/fggp/go-csnd6"
 
-// Defining our Csound ORC code within a triple-quoted, multline String
+// Defining our Csound ORC code within a multiline String
 var orc string = `
 sr=48000
 ksmps=32

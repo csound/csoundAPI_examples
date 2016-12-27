@@ -38,7 +38,7 @@
 #include <time.h>
 
 
-/* Defining our Csound ORC code within a triple-quoted, multline String */
+/* Defining our Csound ORC code within a multiline String */
 const char* orc = "sr=44100\n"
   "ksmps=32\n"
   "nchnls=2\n"
