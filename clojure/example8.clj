@@ -54,7 +54,7 @@
         (swap! (:curval state) #(+ % @(:increment state))) 
         (+ base (* range c))))))
 
-; Defining our Csound ORC code within a triple-quoted, multline String
+; Defining our Csound ORC code within a multiline String
 (def orc "
 sr=44100
 ksmps=32

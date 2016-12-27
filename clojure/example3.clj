@@ -12,7 +12,7 @@
 ; this line turns off Csound's atexit handler as well as signal handlers
 (csnd6/csoundInitialize (bit-or csnd6/CSOUNDINIT_NO_ATEXIT csnd6/CSOUNDINIT_NO_SIGNAL_HANDLER))
 
-; Defining our Csound ORC code within a triple-quoted, multline String
+; Defining our Csound ORC code within a multiline String
 (def orc "
 sr=44100
 ksmps=32

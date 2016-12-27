@@ -72,7 +72,7 @@
       (println "Setting value...")
       (.SetValue chn 0 (update-func)))))
 
-; Defining our Csound ORC code within a triple-quoted, multline String
+; Defining our Csound ORC code within a multiline String
 (def orc "
 sr=44100
 ksmps=32
