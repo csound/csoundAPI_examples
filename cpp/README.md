@@ -18,3 +18,16 @@
 ##Compilation instruction
 In order to compile thee examples you will need to link to the Csound6 library. The following command line can be used to build on Linux:
 g++ SimpleCsdPlayback.cpp -o example1 -I/usr/local/include/csound -lcsound64 
+
+### Compilation instructions for Ubuntu with apt-get
+
+In order to compile the examples on Ubuntu, `csound.hpp` is needed. It can be obtained with<br>
+`sudo apt-get install libcsnd-dev`
+
+`csound.hpp` is then found in `/usr/include/csound`, so the compiler must be passed with the<br>
+`-I/usr/include/csound`
+option:<br>
+`g++ -I/usr/include/csound SimpleCsdPlayback.cpp -oSimpleCsdPlayback`
+
+`csPerfThreadExample.cpp`, `GenerativeScoreExample.cpp` and `SetChannelExample.cpp` additionaly needs to be linked with `libcsnd6`, for example like so:<br>
+`g++ -I/usr/include/csound/  csPerfThreadExample.cpp -lcsound64 -lcsnd6 -ocsPerfThreadExample`
