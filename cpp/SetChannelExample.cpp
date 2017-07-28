@@ -24,7 +24,7 @@ bool shouldPlay = true;
 Csound* csound = new Csound();
 
 //compile instance of csound.
-csound->Compile("test7.csd");
+csound->Compile("test8.csd");
 //setup performance thread
 CsoundPerformanceThread* perfThread = new CsoundPerformanceThread(csound); 
 
