@@ -12,7 +12,7 @@
 
 [SetChannelExample.cpp](SetChannelExample.cpp): Shows how SetChanel() can be used to pass information directly to an instance of Csound in realtime. 
 
-[GetSpinExample.cpp](GetSpinExample.cpp): GetSpin() and GetSpout() can be used to access Csound's IO buffers. This can be useful when using the Csound library purely as a processing engine. THis examples show how easy it is to pass an audio signal directly to Csound for processing. 
+[GetSpoutExample.cpp](GetSpoutExample.cpp): GetSpin() and GetSpout() can be used to access Csound's IO buffers. This can be useful when using the Csound library purely as a processing engine. This example shows how easy it is to pass an audio signal directly to Csound for processing.
 
 
 ##Compilation instruction
