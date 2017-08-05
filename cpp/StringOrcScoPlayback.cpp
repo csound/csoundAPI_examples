@@ -14,7 +14,7 @@
 #include "csound.hpp"
 #include <string>
 
-int main(int argc, char *argv[])
+int main()
 {
 std::string orc = "sr=44100\n\
 ksmps=32\n\

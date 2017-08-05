@@ -18,9 +18,13 @@
 
 using namespace std;
 
-int main(int argc, char *argv[])
+#ifdef __GNUC__
+#define NOT_USED(var) var __attribute__((unused))
+#endif
+
+int main()
 {
-MYFLT *spin, *spout;
+MYFLT *spin, NOT_USED(*spout);
 int sampleCount=0;
 
 //For sake of simplicity we are generating a simple waveform.
