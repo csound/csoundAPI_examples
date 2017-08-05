@@ -57,7 +57,8 @@ perfThread->Play();
 while(perfThread->GetStatus() == 0);
                        	
 //free Csound and thread objects
-delete csound, perfThread;
+delete csound;
+delete perfThread;
 
 return 0;
 }
