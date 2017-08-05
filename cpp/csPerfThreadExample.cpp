@@ -18,7 +18,7 @@
 #include <string>
 #include "csPerfThread.hpp"
 
-int main(int argc, char *argv[])
+int main()
 {
 std::string orc = "sr=44100\n\
 ksmps=32\n\

@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include "csound.hpp"
 
-int main(int argc, char *argv[])
+int main()
 {
 //Create an instance of Csound
 Csound* csound = new Csound();
