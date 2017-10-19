@@ -34,8 +34,8 @@
 package main
 
 import (
-	"github.com/fggp/go-csnd6"
 	"fmt"
+	"github.com/fggp/go-csnd6"
 	"math/rand"
 	"strconv"
 	"strings"
