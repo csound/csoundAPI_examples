@@ -1,6 +1,6 @@
 ### Csound-API / XCode project. 
 
-This project assumes that Csound has been installed using the standard Csound installer on OSX. Therefore it expects to find the Csound framework in:
+This project assumes that a recent version of Csound has been installed using the standard Csound installer on OSX. Therefore it expects to find the Csound framework in:
 
 ```/Library/Frameworks```
 
