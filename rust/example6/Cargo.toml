@@ -1,0 +1,9 @@
+[package]
+name = "example6"
+version = "0.1.0"
+authors = ["NMojica <nmojica@signalsecure.com>"]
+edition = "2018"
+
+[dependencies]
+csound = "*"
+rand = "0.6.4"
