@@ -5,4 +5,4 @@ authors = ["Natanael Mojica <neithanmo@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-csound = "0.1.2"
+csound = "*"

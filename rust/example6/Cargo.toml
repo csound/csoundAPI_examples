@@ -5,5 +5,5 @@ authors = ["NMojica <nmojica@signalsecure.com>"]
 edition = "2018"
 
 [dependencies]
-csound = "0.1.1"
+csound = "*"
 rand = "0.6.4"
