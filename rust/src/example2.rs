@@ -1,12 +1,11 @@
 /* Example 2 - Compilation with Csound without CSD
-* Adapted for Rust by Natanael Mojica <neithanmo@gmail.com>, 2019-01-20
-* from the original C example by Steven Yi <stevenyi@gmail.com>
-* 2013.10.28
+ * Author: Steven Yi <stevenyi@gmail.com>
+ * 2013.10.28
  *
  * In this example, we move from using an external CSD file to
  * embedding our Csound ORC and SCO code within our Python project.
  * Besides allowing encapsulating the code within the same file,
- * using the compile_orc() and read_score() API calls is useful when
+ * using the CompileOrc() and CompileSco() API calls is useful when
  * the SCO or ORC are generated, or perhaps coming from another
  * source, such as from a database or network.
  */
@@ -28,8 +27,7 @@ endin";
 static sco: &str = "i1 0 1";
 
 fn main() {
-
-    let mut cs = Csound::new();
+    let cs = Csound::new();
 
     /* Using SetOption() to configure Csound
     Note: use only one commandline flag at a time */

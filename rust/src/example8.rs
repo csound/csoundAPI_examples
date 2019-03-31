@@ -1,44 +1,50 @@
-
-/* Example 9 - More efficient Channel Communications
+/* Example 8 - More efficient Channel Communications
  * Adapted for Rust by Natanael Mojica <neithanmo@gmail.com>, 2019-01-28
  * from the original C example by Steven Yi <stevenyi@gmail.com>
  * 2013.10.28
  *
- * This example continues on from Example 8 and just refactors the
- * creation and setup of Csound Channels into a create_channel()
- * function.  This example illustrates some natural progression that
- * might occur in your own API-based projects, and how you might
- * simplify your own code.
+ * This example builds on Example 7 by replacing the calls to SetControlChannel
+ * with using csoundGetChannelPtr. In the Csound API, using SetControlChannel
+ * and GetControlChannel is great for quick work, but ultimately it is slower
+ * than pre-fetching the actual channel pointer.  This is because
+ * Set/GetControlChannel operates by doing a lookup of the Channel Pointer,
+ * then setting or getting the value.  This happens on each call. The
+ * alternative is to use csoundGetChannelPtr, which fetches the Channel Pointer
+ * and lets you directly set and get the value on the pointer.
+ *
+ * One thing to note though is that csoundSetControlChannel is protected by
+ * spinlocks.  This means that it is safe for multithreading to use.  However,
+ * if you are working with your own performance-loop, you can correctly process
+ * updates to channels and there will be no problems with multithreading.
  *
  */
 
 #![allow(non_camel_case_types, non_upper_case_globals, non_snake_case)]
 extern crate csound;
-use csound::{Csound, ControlChannelType, ControlChannelPtr};
+use csound::{ControlChannelType, Csound};
 
 extern crate rand;
 
-
 #[derive(Default)]
-pub struct RandomLine {
-    dur:i32,
-    end:f64,
-    increment:f64,
-    current_val:f64,
-    base:f64,
-    range:f64,
+pub struct random_line {
+    dur: i32,
+    end: f64,
+    increment: f64,
+    current_val: f64,
+    base: f64,
+    range: f64,
 }
 
-/* Resets a RandomLine by calculating new end, dur, and increment values */
-fn random_line_reset(rline: &mut RandomLine ){
+/* Resets a random_line by calculating new end, dur, and increment values */
+fn random_line_reset(rline: &mut random_line) {
     rline.dur = (rand::random::<i32>() % 256) + 256;
     rline.end = rand::random::<f64>();
     rline.increment = (rline.end - rline.current_val) / (rline.dur as f64);
 }
 
-/* Creates a RandomLine and initializes values */
-pub fn random_line_create(base:f64, range:f64) -> RandomLine{
-    let mut retval = RandomLine::default();
+/* Creates a random_line and initializes values */
+pub fn random_line_create(base: f64, range: f64) -> random_line {
+    let mut retval = random_line::default();
     retval.base = base;
     retval.range = range;
     random_line_reset(&mut retval);
@@ -46,7 +52,7 @@ pub fn random_line_create(base:f64, range:f64) -> RandomLine{
 }
 
 /* Advances state of random line and returns current value */
-fn random_line_tick(rline: &mut RandomLine) -> f64 {
+fn random_line_tick(rline: &mut random_line) -> f64 {
     let current_value = rline.current_val;
     rline.dur -= 1;
     if rline.dur <= 0 {
@@ -54,14 +60,6 @@ fn random_line_tick(rline: &mut RandomLine) -> f64 {
     }
     rline.current_val += rline.increment;
     rline.base + (current_value * rline.range)
-}
-
-fn create_channel<'a>(csound: &'a Csound, channel_name: &str) -> ControlChannelPtr<'a> {
-    match csound.get_channel_ptr(channel_name,
-        ControlChannelType::CSOUND_CONTROL_CHANNEL | ControlChannelType::CSOUND_INPUT_CHANNEL){
-            Ok(ptr)      => ptr,
-            Err(status)  => panic!("Channel not exists {:?}", status),
-        }
 }
 
 /* Defining our Csound ORC code within a multiline String */
@@ -80,7 +78,6 @@ static ORC: &str = "sr=44100
 endin";
 
 fn main() {
-
     let mut cs = Csound::new();
 
     /* Using SetOption() to configure Csound
@@ -97,21 +94,31 @@ fn main() {
      * before doing any performing */
     cs.start().unwrap();
 
-    /* Create a RandomLine for use with Amplitude */
+    /* Create a random_line for use with Amplitude */
     let mut amp = random_line_create(0.4, 0.2);
 
-    /* Create a RandomLine for use with Frequency */
+    /* Create a random_line for use with Frequency */
     let mut freq = random_line_create(400.0, 80.0);
 
     /* Retrieve Channel Pointers from Csound */
-    let amp_channel = create_channel(&cs, "amp");
-    let freq_channel = create_channel(&cs, "freq");
+    let amp_channel = cs
+        .get_channel_ptr(
+            "amp",
+            ControlChannelType::CSOUND_CONTROL_CHANNEL | ControlChannelType::CSOUND_INPUT_CHANNEL,
+        )
+        .unwrap();
+    let freq_channel = cs
+        .get_channel_ptr(
+            "freq",
+            ControlChannelType::CSOUND_CONTROL_CHANNEL | ControlChannelType::CSOUND_INPUT_CHANNEL,
+        )
+        .unwrap();
 
     /* Initialize channel values before running Csound */
     let mut amp_value = [random_line_tick(&mut amp); 1];
     let mut freq_value = [random_line_tick(&mut freq); 1];
 
-     /* The following is our main performance loop. We will perform one
+    /* The following is our main performance loop. We will perform one
      * block of sound at a time and continue to do so while it returns false,
      * which signifies to keep processing.  We will explore this loop
      * technique in further examples.

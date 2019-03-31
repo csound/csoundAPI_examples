@@ -1,7 +1,6 @@
 /* Example 3 - Using our own performance loop
-* Adapted for Rust by Natanael Mojica <neithanmo@gmail.com>, 2019-01-21
-* from the original C example by Steven Yi <stevenyi@gmail.com>
-* 2013.10.28
+ * Author: Steven Yi <stevenyi@gmail.com>
+ * 2013.10.28
  *
  * In this example, we use a while loop to perform Csound one audio block at a time.
  * This technique is important to know as it will allow us to do further processing
@@ -25,10 +24,9 @@ endin";
 static sco: &str = "i1 0 1";
 
 fn main() {
-
     let mut cs = Csound::new();
 
-    /* Using set_option() to configure Csound
+    /* Using SetOption() to configure Csound
     Note: use only one commandline flag at a time */
     cs.set_option("-odac");
 
@@ -47,9 +45,7 @@ fn main() {
      * which signifies to keep processing.  We will explore this loop
      * technique in further examples.
      */
-     while cs.perform_ksmps() == false {
-        /* pass for now */
-     };
+    while cs.perform_ksmps() == false { /* pass for now */ }
 
     cs.stop();
 }

@@ -1,54 +1,41 @@
-
-/* Example 7 - Communicating continuous values with Csound's Channel System
- * Adapted for Rust by Natanael Mojica <neithanmo@gmail.com>, 2019-01-24
+/* Example 9 - More efficient Channel Communications
+ * Adapted for Rust by Natanael Mojica <neithanmo@gmail.com>, 2019-01-28
  * from the original C example by Steven Yi <stevenyi@gmail.com>
  * 2013.10.28
  *
- * This example introduces using Csound's Channel System to communicate
- * continuous control data (k-rate) from a host program to Csound. The
- * first thing to note is random_line_create(). It takes in a base value
- * and a range in which to vary randomly.  The reset functions calculates
- * a new random target value (end), a random duration in which to
- * run (dur, expressed as # of audio blocks to last in duration), and
- * calculates the increment value to apply to the current value per audio-block.
- * When the target is met, the random_line_tick() function will call
- * random_line_reset() to update a new target value and duration.
+ * This example continues on from Example 8 and just refactors the
+ * creation and setup of Csound Channels into a create_channel()
+ * function.  This example illustrates some natural progression that
+ * might occur in your own API-based projects, and how you might
+ * simplify your own code.
  *
- * In this example, we use two random_line's, one for amplitude and
- * another for frequency.  We start a Csound instrument instance that reads
- * from two channels using the chnget opcode. In turn, we update the values
- * to the channel from the host program. To update the channel,
- * we call the set_control_channel function on the Csound object, passing
- * a channel name and value.  Note: The random_line_tick() function not only
- * gets us the current value, but also advances the internal state by the
- * increment and by decrementing the duration.
  */
+
 #![allow(non_camel_case_types, non_upper_case_globals, non_snake_case)]
 extern crate csound;
-use csound::*;
+use csound::{ControlChannelPtr, ControlChannelType, Csound};
 
 extern crate rand;
 
-
 #[derive(Default)]
 pub struct random_line {
-    dur:i32,
-    end:f64,
-    increment:f64,
-    current_val:f64,
-    base:f64,
-    range:f64,
+    dur: i32,
+    end: f64,
+    increment: f64,
+    current_val: f64,
+    base: f64,
+    range: f64,
 }
 
 /* Resets a random_line by calculating new end, dur, and increment values */
-fn random_line_reset(rline: &mut random_line ){
+fn random_line_reset(rline: &mut random_line) {
     rline.dur = (rand::random::<i32>() % 256) + 256;
-    rline.end = rand::random::<f64>(); // check
+    rline.end = rand::random::<f64>();
     rline.increment = (rline.end - rline.current_val) / (rline.dur as f64);
 }
 
 /* Creates a random_line and initializes values */
-pub fn random_line_create(base:f64, range:f64) -> random_line{
+pub fn random_line_create(base: f64, range: f64) -> random_line {
     let mut retval = random_line::default();
     retval.base = base;
     retval.range = range;
@@ -67,6 +54,16 @@ fn random_line_tick(rline: &mut random_line) -> f64 {
     rline.base + (current_value * rline.range)
 }
 
+fn create_channel<'a>(csound: &'a Csound, channel_name: &str) -> ControlChannelPtr<'a> {
+    match csound.get_channel_ptr(
+        channel_name,
+        ControlChannelType::CSOUND_CONTROL_CHANNEL | ControlChannelType::CSOUND_INPUT_CHANNEL,
+    ) {
+        Ok(ptr) => ptr,
+        Err(status) => panic!("Channel not exists {:?}", status),
+    }
+}
+
 /* Defining our Csound ORC code within a multiline String */
 static ORC: &str = "sr=44100
   ksmps=32
@@ -83,7 +80,6 @@ static ORC: &str = "sr=44100
 endin";
 
 fn main() {
-
     let mut cs = Csound::new();
 
     /* Using SetOption() to configure Csound
@@ -106,19 +102,25 @@ fn main() {
     /* Create a random_line for use with Frequency */
     let mut freq = random_line_create(400.0, 80.0);
 
-    /* Initialize channel values before running Csound */
-    cs.set_control_channel("amp", random_line_tick(&mut amp));
-    cs.set_control_channel("freq", random_line_tick(&mut freq));
+    /* Retrieve Channel Pointers from Csound */
+    let amp_channel = create_channel(&cs, "amp");
+    let freq_channel = create_channel(&cs, "freq");
 
-     /* The following is our main performance loop. We will perform one
+    /* Initialize channel values before running Csound */
+    let mut amp_value = [random_line_tick(&mut amp); 1];
+    let mut freq_value = [random_line_tick(&mut freq); 1];
+
+    /* The following is our main performance loop. We will perform one
      * block of sound at a time and continue to do so while it returns false,
      * which signifies to keep processing.  We will explore this loop
      * technique in further examples.
      */
     while !cs.perform_ksmps() {
         /* Update Channel Values */
-        cs.set_control_channel("amp", random_line_tick(&mut amp));
-        cs.set_control_channel("freq", random_line_tick(&mut freq));
+        amp_value[0] = random_line_tick(&mut amp);
+        freq_value[0] = random_line_tick(&mut freq);
+        amp_channel.write(&amp_value);
+        freq_channel.write(&freq_value);
     }
     cs.stop();
 }
