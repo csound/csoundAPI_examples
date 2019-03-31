@@ -1,7 +1,10 @@
 [package]
-name = "ui"
+name = "example11"
 version = "0.1.0"
 authors = ["Natanael Mojica <neithanmo@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+csound = {git = "https://github.com/neithanmo/csound-rs"}
+rand = "0.6.4"
+nannou = "0.8.0"
