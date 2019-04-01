@@ -1,7 +1,47 @@
+extern crate csound;
 extern crate nannou;
 
+use csound::*;
 use nannou::prelude::*;
 use nannou::ui::prelude::*;
+
+
+// /* Defining our Csound ORC code within a multiline String */
+// static csd: &str = "<CsoundSynthesizer>
+// <CsOptions>
+// -odac
+// </CsOptions>
+// <CsInstruments>
+//
+// sr = 44100
+// ksmps = 32
+// nchnls = 2
+// 0dbfs  = 1
+//
+// instr 1
+//
+// kcps = 440
+// kcar = 1
+// kmod = p4
+// kndx line 0, p3, 20	;intensivy sidebands
+//
+// asig foscili .5, kcps, kcar, kmod, kndx, 1
+//      outs asig, asig
+//
+// endin
+// </CsInstruments>
+// <CsScore>
+// ; sine
+// f 1 0 16384 10 1
+//
+// i 1 0  9 .01	;vibrato
+// i 1 10 .  1
+// i 1 20 . 1.414	;gong-ish
+// i 1 30 5 2.05	;with beat
+// e
+// </CsScore>
+// </CsoundSynthesizer>";
+
 
 fn main() {
    nannou::run(model, event, view);
@@ -15,6 +55,7 @@ struct Model {
    rotation: f32,
    color: Rgb,
    position: Point2,
+   csound: Csound
 }
 
 struct Ids {
@@ -28,6 +69,16 @@ struct Ids {
 fn model(app: &App) -> Model {
    // Set the loop mode to wait for events, an energy-efficient option for pure-GUI apps.
    app.set_loop_mode(LoopMode::wait(3));
+
+   // Creates the csound instance
+   let csound = Csound::new();
+
+   //csound.message_string_callback(|_, message:&str| {
+       //print!("{}", message);
+   //});
+
+   csound.compile_csd("/home/nmojica/Documents/csoundAPI_examples/rust/example11/test.csd").unwrap();
+   csound.start().unwrap();
 
    // Create the UI.
    let mut ui = app.new_ui().build().unwrap();
@@ -48,7 +99,7 @@ fn model(app: &App) -> Model {
    let position = pt2(0.0, 0.0);
    let color = Rgb::new(1.0, 0.0, 1.0);
 
-   Model {
+   let model = Model {
        ui,
        ids,
        resolution,
@@ -56,10 +107,14 @@ fn model(app: &App) -> Model {
        rotation,
        position,
        color,
-   }
+       csound
+   };
+   println!("version {}", model.csound.version());
+   model
 }
 
 fn event(_app: &App, mut model: Model, event: Event) -> Model {
+
    if let Event::Update(_update) = event {
        // Calling `set_widgets` allows us to instantiate some widgets.
        let ui = &mut model.ui.set_widgets();
@@ -134,7 +189,8 @@ fn event(_app: &App, mut model: Model, event: Event) -> Model {
 
 // Draw the state of your `Model` into the given `Frame` here.
 fn view(app: &App, model: &Model, frame: Frame) -> Frame {
-   // Begin drawing
+   
+    // Begin drawing
    let draw = app.draw();
 
    draw.background().rgb(0.02, 0.02, 0.02);
@@ -152,6 +208,7 @@ fn view(app: &App, model: &Model, frame: Frame) -> Frame {
    // Draw the state of the `Ui` to the frame.
    model.ui.draw_to_frame(app, &frame).unwrap();
 
+   model.csound.perform_ksmps();
    // Return the drawn frame.
    frame
 }
