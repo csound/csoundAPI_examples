@@ -8,3 +8,4 @@ edition = "2018"
 csound = {git = "https://github.com/neithanmo/csound-rs"}
 rand = "0.6.4"
 nannou = "0.8.0"
+lazy_static = "0.1.*"

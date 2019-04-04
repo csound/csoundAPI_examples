@@ -1,50 +1,95 @@
 extern crate csound;
 extern crate nannou;
 
+#[macro_use]
+extern crate lazy_static;
+
 use csound::*;
 use nannou::prelude::*;
 use nannou::ui::prelude::*;
 
+use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc;
+use std::thread;
+use std::sync::{Arc, Mutex};
 
-// /* Defining our Csound ORC code within a multiline String */
-// static csd: &str = "<CsoundSynthesizer>
-// <CsOptions>
-// -odac
-// </CsOptions>
-// <CsInstruments>
-//
-// sr = 44100
-// ksmps = 32
-// nchnls = 2
-// 0dbfs  = 1
-//
-// instr 1
-//
-// kcps = 440
-// kcar = 1
-// kmod = p4
-// kndx line 0, p3, 20	;intensivy sidebands
-//
-// asig foscili .5, kcps, kcar, kmod, kndx, 1
-//      outs asig, asig
-//
-// endin
-// </CsInstruments>
-// <CsScore>
-// ; sine
-// f 1 0 16384 10 1
-//
-// i 1 0  9 .01	;vibrato
-// i 1 10 .  1
-// i 1 20 . 1.414	;gong-ish
-// i 1 30 5 2.05	;with beat
-// e
-// </CsScore>
-// </CsoundSynthesizer>";
+
+ /* Defining our Csound ORC code within a multiline String */
+ static ORC: &str = "
+ sr = 44100
+ ksmps = 32
+ nchnls = 2
+ 0dbfs  = 1
+
+ instr 1
+
+ kcps = 440
+ kcar = 1
+ kmod = p4
+ kndx line 0, p3, 20	;intensivy sidebands
+
+ asig foscili .5, kcps, kcar, kmod, kndx, 1
+      outs asig, asig
+
+ endin";
+
+ //-odac
+/*
+ * <CsScore>
+ * ; sine
+ * f 1 0 16384 10 1
+ *
+ * i 1 0  9 .01	;vibrato
+ * i 1 10 .  1
+ * i 1 20 . 1.414	;gong-ish
+ * i 1 30 5 2.05	;with beat
+ * e
+ * </CsScore>
+ */
+
+struct Channel{
+    sender: Sender<String>,
+    receiver: Receiver<String>
+}
+
+lazy_static!{
+    static ref CHANNEL:Arc<Mutex<Channel>>= {
+        let (sender, receiver ): (Sender<String>, Receiver<String>) = mpsc::channel();
+        Arc::new( Mutex::new(Channel{
+            sender,
+            receiver
+        }))
+    };
+}
 
 
 fn main() {
-   nannou::run(model, event, view);
+    let event_receiver = thread::spawn(move ||{
+        // Creates the csound instance
+        let csound = Csound::new();
+        csound.message_string_callback(|_, m: &str| print!("{}", m));
+        csound.set_option("-odac").unwrap();
+        csound.compile_orc(ORC).unwrap();
+        csound.start().unwrap();
+
+        loop{
+            match CHANNEL.lock().unwrap().receiver.try_recv(){
+                Ok(msg) => {
+                    if msg != "BREAK"{
+                        csound.send_input_message_async(&msg).unwrap();
+                        continue;
+                    }
+                    break;
+                }
+                _  => {},
+            }
+        
+        }
+        csound.stop();
+    });
+    
+    nannou::run(model, event, view);
+    event_receiver.join().expect("oops! the child thread panicked");
 }
 
 struct Model {
@@ -55,7 +100,7 @@ struct Model {
    rotation: f32,
    color: Rgb,
    position: Point2,
-   csound: Csound
+   sender: Sender<String>
 }
 
 struct Ids {
@@ -67,18 +112,12 @@ struct Ids {
 }
 
 fn model(app: &App) -> Model {
-   // Set the loop mode to wait for events, an energy-efficient option for pure-GUI apps.
+   
+    // Set the loop mode to wait for events, an energy-efficient option for pure-GUI apps.
    app.set_loop_mode(LoopMode::wait(3));
 
-   // Creates the csound instance
-   let csound = Csound::new();
-
-   //csound.message_string_callback(|_, message:&str| {
-       //print!("{}", message);
-   //});
-
-   csound.compile_csd("/home/nmojica/Documents/csoundAPI_examples/rust/example11/test.csd").unwrap();
-   csound.start().unwrap();
+   // Gets the message sender for communications to the audio engine
+   let sender = CHANNEL.lock().unwrap().sender.clone();
 
    // Create the UI.
    let mut ui = app.new_ui().build().unwrap();
@@ -107,9 +146,8 @@ fn model(app: &App) -> Model {
        rotation,
        position,
        color,
-       csound
+       sender
    };
-   println!("version {}", model.csound.version());
    model
 }
 
@@ -189,7 +227,7 @@ fn event(_app: &App, mut model: Model, event: Event) -> Model {
 
 // Draw the state of your `Model` into the given `Frame` here.
 fn view(app: &App, model: &Model, frame: Frame) -> Frame {
-   
+
     // Begin drawing
    let draw = app.draw();
 
@@ -208,7 +246,6 @@ fn view(app: &App, model: &Model, frame: Frame) -> Frame {
    // Draw the state of the `Ui` to the frame.
    model.ui.draw_to_frame(app, &frame).unwrap();
 
-   model.csound.perform_ksmps();
    // Return the drawn frame.
    frame
 }
