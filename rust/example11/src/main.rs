@@ -21,6 +21,7 @@ use std::sync::{Arc, Mutex};
  nchnls = 2
  0dbfs  = 1
 
+ gisine   ftgen 1, 0, 16384, 10, 1
  instr 1
 
  kcps = 440
@@ -36,9 +37,6 @@ use std::sync::{Arc, Mutex};
  //-odac
 /*
  * <CsScore>
- * ; sine
- * f 1 0 16384 10 1
- *
  * i 1 0  9 .01	;vibrato
  * i 1 10 .  1
  * i 1 20 . 1.414	;gong-ish
@@ -201,6 +199,7 @@ fn event(_app: &App, mut model: Model, event: Event) -> Model {
            .set(model.ids.random_color, ui)
        {
            model.color = Rgb::new(random(), random(), random());
+           model.sender.send( "i 1 0  2 1.41".to_string() ).unwrap();
        }
 
        for (x, y) in widget::XYPad::new(
