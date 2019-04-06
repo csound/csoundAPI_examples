@@ -28,9 +28,10 @@ use std::sync::{Arc, Mutex};
  kcar = 1
  kmod = p4
  kndx line 0, p3, 20	;intensivy sidebands
+ afade line 1, p3, 0
 
  asig foscili .5, kcps, kcar, kmod, kndx, 1
-      outs asig, asig
+      outs asig*afade, asig*afade
 
  endin";
 
@@ -71,6 +72,7 @@ fn main() {
         csound.start().unwrap();
 
         loop{
+            csound.perform_ksmps();
             match CHANNEL.lock().unwrap().receiver.try_recv(){
                 Ok(msg) => {
                     if msg != "BREAK"{
@@ -199,7 +201,8 @@ fn event(_app: &App, mut model: Model, event: Event) -> Model {
            .set(model.ids.random_color, ui)
        {
            model.color = Rgb::new(random(), random(), random());
-           model.sender.send( "i 1 0  2 1.41".to_string() ).unwrap();
+           let sound = format!("i 1 0 2 {}", random_f64());
+           model.sender.send( sound ).unwrap();
        }
 
        for (x, y) in widget::XYPad::new(
