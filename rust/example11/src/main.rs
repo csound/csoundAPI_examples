@@ -47,13 +47,19 @@ use std::sync::{Arc, Mutex};
  */
 
 struct Channel{
-    sender: Sender<String>,
-    receiver: Receiver<String>
+    sender: Sender<PlayInstr>,
+    receiver: Receiver<PlayInstr>
+}
+
+enum PlayInstr{
+    InstrumentData(String),
+    AudioChannelValue(f64),
+    Exit,
 }
 
 lazy_static!{
     static ref CHANNEL:Arc<Mutex<Channel>>= {
-        let (sender, receiver ): (Sender<String>, Receiver<String>) = mpsc::channel();
+        let (sender, receiver ): (Sender<PlayInstr>, Receiver<PlayInstr>) = mpsc::channel();
         Arc::new( Mutex::new(Channel{
             sender,
             receiver
@@ -75,11 +81,11 @@ fn main() {
             csound.perform_ksmps();
             match CHANNEL.lock().unwrap().receiver.try_recv(){
                 Ok(msg) => {
-                    if msg != "BREAK"{
-                        csound.send_input_message_async(&msg).unwrap();
-                        continue;
+                    match msg {
+                        PlayInstr::InstrumentData(data) => csound.send_input_message_async(&data).unwrap(),
+                        PlayInstr::AudioChannelValue(value) => {},
+                        PlayInstr::Exit => break,
                     }
-                    break;
                 }
                 _  => {},
             }
@@ -89,6 +95,8 @@ fn main() {
     });
     
     nannou::run(model, event, view);
+    let sender = CHANNEL.lock().unwrap().sender.clone();
+    sender.send( PlayInstr::Exit ).unwrap();
     event_receiver.join().expect("oops! the child thread panicked");
 }
 
@@ -100,7 +108,7 @@ struct Model {
    rotation: f32,
    color: Rgb,
    position: Point2,
-   sender: Sender<String>
+   sender: Sender<PlayInstr>
 }
 
 struct Ids {
@@ -115,6 +123,8 @@ fn model(app: &App) -> Model {
    
     // Set the loop mode to wait for events, an energy-efficient option for pure-GUI apps.
    app.set_loop_mode(LoopMode::wait(3));
+
+   app.set_exit_on_escape(true);
 
    // Gets the message sender for communications to the audio engine
    let sender = CHANNEL.lock().unwrap().sender.clone();
@@ -132,11 +142,11 @@ fn model(app: &App) -> Model {
    };
 
    // Init our variables
-   let resolution = 6;
-   let scale = 200.0;
-   let rotation = 0.0;
-   let position = pt2(0.0, 0.0);
-   let color = Rgb::new(1.0, 0.0, 1.0);
+   let resolution       = 6;
+   let scale            = 200.0;
+   let rotation         = 0.0;
+   let position         = pt2(0.0, 0.0);
+   let color            = Rgb::new(1.0, 0.0, 1.0);
 
    let model = Model {
        ui,
@@ -202,7 +212,7 @@ fn event(_app: &App, mut model: Model, event: Event) -> Model {
        {
            model.color = Rgb::new(random(), random(), random());
            let sound = format!("i 1 0 2 {}", random_f64());
-           model.sender.send( sound ).unwrap();
+           model.sender.send( PlayInstr::InstrumentData(sound) ).unwrap();
        }
 
        for (x, y) in widget::XYPad::new(
