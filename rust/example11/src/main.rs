@@ -67,6 +67,9 @@ lazy_static!{
     };
 }
 
+const NUMBER_OF_POINTS:u32 = 10;
+const HALF_THICKNESS: f32 = 4.0;
+
 
 fn main() {
     let event_receiver = thread::spawn(move ||{
@@ -244,6 +247,33 @@ fn view(app: &App, model: &Model, frame: Frame) -> Frame {
    let draw = app.draw();
 
    draw.background().rgb(0.02, 0.02, 0.02);
+
+   let t = app.time;
+   let win = app.window_rect();
+
+   let n_points = NUMBER_OF_POINTS;
+   let half_thickness = HALF_THICKNESS;
+   let hz = model.rotation;
+
+   let vertices = (0..n_points)
+       .map( |i| {
+           let x = map_range(i, 0, n_points-1,win.left(), win.right());
+           let fract = i as f32 / n_points as f32;
+           let amp = (t + fract * hz * TAU).sin();
+           let y = map_range(amp, -1.0, 1.0, win.bottom() * 0.75, win.top() * 0.75);
+           pt2(x, y)
+       })
+       .enumerate()
+       .map(|(i, p)| {
+           let fract = i as f32 / n_points as f32;
+           let r = (t + fract) % 1.0;
+           let g = (t + 1.0 - fract) % 1.0;
+           let b = (t + 0.5 + fract) % 1.0;
+           let rgba = nannou::color::Rgba::new(r, g, b, 1.0);
+           geom::vertex::Rgba(p, rgba)
+       });
+
+   draw.polyline().vertices(half_thickness, vertices);
 
    draw.ellipse()
        .xy(model.position)
