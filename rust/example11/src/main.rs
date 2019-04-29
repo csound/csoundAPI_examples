@@ -3,12 +3,12 @@ extern crate nannou;
 
 #[macro_use]
 extern crate lazy_static;
-
+use std::time::Duration;
 use csound::*;
 use nannou::prelude::*;
 use nannou::ui::prelude::*;
 
-use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc::{Sender, Receiver, TryRecvError};
 use std::sync::mpsc;
 use std::thread;
 use std::sync::{Arc, Mutex};
@@ -16,12 +16,20 @@ use std::sync::{Arc, Mutex};
 
  /* Defining our Csound ORC code within a multiline String */
  static ORC: &str = "
+ <CsoundSynthesizer>
+ <CsOptions>
+ -odac
+ </CsOptions>
+ <CsInstruments>
  sr = 44100
  ksmps = 32
  nchnls = 2
  0dbfs  = 1
 
  gisine   ftgen 1, 0, 16384, 10, 1
+ 
+ turnon 2
+
  instr 1
 
  kcps = 440
@@ -33,18 +41,22 @@ use std::sync::{Arc, Mutex};
  asig foscili .5, kcps, kcar, kmod, kndx, 1
       outs asig*afade, asig*afade
 
- endin";
+ endin
 
- //-odac
-/*
- * <CsScore>
- * i 1 0  9 .01	;vibrato
- * i 1 10 .  1
- * i 1 20 . 1.414	;gong-ish
- * i 1 30 5 2.05	;with beat
- * e
- * </CsScore>
- */
+ instr 2    ; every run time same values
+
+ kbeta  betarand 100, 1, 1 
+ kfreq  chnget  \"frq\"
+ kamp   chnget \"amp\"
+ aout   oscili kamp, kfreq+kbeta, 1    ; & listen
+    outs    aout, aout
+ endin
+
+</CsInstruments>
+ <CsScore>
+ </CsScore>
+ </CsoundSynthesizer>
+ ";
 
 struct Channel{
     sender: Sender<PlayInstr>,
@@ -53,7 +65,8 @@ struct Channel{
 
 enum PlayInstr{
     InstrumentData(String),
-    AudioChannelValue(f64),
+    Frequency(f32),
+    Amplitude(f32),
     Exit,
 }
 
@@ -67,17 +80,17 @@ lazy_static!{
     };
 }
 
-const NUMBER_OF_POINTS:u32 = 10;
-const HALF_THICKNESS: f32 = 4.0;
+const NUMBER_OF_POINTS:u32 = 200;
+const HALF_THICKNESS: f32 = 2.0;
 
 
 fn main() {
     let event_receiver = thread::spawn(move ||{
         // Creates the csound instance
         let csound = Csound::new();
-        csound.message_string_callback(|_, m: &str| print!("{}", m));
+        csound.message_string_callback(|_, m: &str| print!("{}", m) );
         csound.set_option("-odac").unwrap();
-        csound.compile_orc(ORC).unwrap();
+        csound.compile_csd_text(ORC).unwrap();
         csound.start().unwrap();
 
         loop{
@@ -86,9 +99,20 @@ fn main() {
                 Ok(msg) => {
                     match msg {
                         PlayInstr::InstrumentData(data) => csound.send_input_message_async(&data).unwrap(),
-                        PlayInstr::AudioChannelValue(value) => {},
+                        PlayInstr::Frequency(value) => {
+                            csound.set_control_channel("frq", value as f64);
+                        },
+                        
+                        PlayInstr::Amplitude(amp) => {
+                            csound.set_control_channel("amp", amp as f64);
+                        },
                         PlayInstr::Exit => break,
                     }
+                }
+                
+                Err(TryRecvError::Disconnected) => {
+                    println!("Terminating.");
+                    break;
                 }
                 _  => {},
             }
@@ -106,26 +130,22 @@ fn main() {
 struct Model {
    ui: Ui,
    ids: Ids,
-   resolution: usize,
-   scale: f32,
-   rotation: f32,
+   frequency: f32,
+   amplitude: f32,
    color: Rgb,
-   position: Point2,
    sender: Sender<PlayInstr>
 }
 
 struct Ids {
-   resolution: widget::Id,
-   scale: widget::Id,
-   rotation: widget::Id,
+   frequency: widget::Id,
+   amplitude: widget::Id,
    random_color: widget::Id,
-   position: widget::Id,
 }
 
 fn model(app: &App) -> Model {
    
     // Set the loop mode to wait for events, an energy-efficient option for pure-GUI apps.
-   app.set_loop_mode(LoopMode::wait(3));
+   app.set_loop_mode(LoopMode::Rate{ update_interval: Duration::from_millis(1) } );
 
    app.set_exit_on_escape(true);
 
@@ -137,27 +157,21 @@ fn model(app: &App) -> Model {
 
    // Generate some ids for our widgets.
    let ids = Ids {
-       resolution: ui.generate_widget_id(),
-       scale: ui.generate_widget_id(),
-       rotation: ui.generate_widget_id(),
+       frequency: ui.generate_widget_id(),
+       amplitude: ui.generate_widget_id(),
        random_color: ui.generate_widget_id(),
-       position: ui.generate_widget_id(),
    };
 
    // Init our variables
-   let resolution       = 6;
-   let scale            = 200.0;
-   let rotation         = 0.0;
-   let position         = pt2(0.0, 0.0);
-   let color            = Rgb::new(1.0, 0.0, 1.0);
+   let frequency        = 0.0;
+   let amplitude        = 0.0;
+   let color            = Rgb::new(0.2, 0.2, 0.2);
 
    let model = Model {
        ui,
        ids,
-       resolution,
-       scale,
-       rotation,
-       position,
+       frequency,
+       amplitude,
        color,
        sender
    };
@@ -179,36 +193,32 @@ fn event(_app: &App, mut model: Model, event: Event) -> Model {
                .border(0.0)
        }
 
-       for value in slider(model.resolution as f32, 3.0, 15.0)
+       for value in slider(model.frequency as f32, 10.0, 2000.0)
            .top_left_with_margin(20.0)
-           .label("Resolution")
-           .set(model.ids.resolution, ui)
+           .label("Frequency")
+           .set(model.ids.frequency, ui)
        {
-           model.resolution = value as usize;
+           model.frequency = value as f32;
+           model.sender.send( PlayInstr::Frequency(value) ).unwrap();
+           println!("frequency {}", value);
        }
 
-       for value in slider(model.scale, 10.0, 500.0)
+       for value in slider(model.amplitude, 0.0, 1.0)
            .down(10.0)
-           .label("Scale")
-           .set(model.ids.scale, ui)
+           .label("Amplitude")
+           .set(model.ids.amplitude, ui)
        {
-           model.scale = value;
-       }
-
-       for value in slider(model.rotation, -PI, PI)
-           .down(10.0)
-           .label("Rotation")
-           .set(model.ids.rotation, ui)
-       {
-           model.rotation = value;
+           model.amplitude = value;
+           model.sender.send( PlayInstr::Amplitude(value) ).unwrap();
+           println!("amplitude {}", value);
        }
 
        for _click in widget::Button::new()
            .down(10.0)
            .w_h(200.0, 60.0)
-           .label("Random Color")
+           .label("Random sound")
            .label_font_size(15)
-           .rgb(0.3, 0.3, 0.3)
+           .rgb(model.color.red, model.color.green, model.color.blue)
            .label_rgb(1.0, 1.0, 1.0)
            .border(0.0)
            .set(model.ids.random_color, ui)
@@ -218,24 +228,6 @@ fn event(_app: &App, mut model: Model, event: Event) -> Model {
            model.sender.send( PlayInstr::InstrumentData(sound) ).unwrap();
        }
 
-       for (x, y) in widget::XYPad::new(
-           model.position.x,
-           -200.0,
-           200.0,
-           model.position.y,
-           -200.0,
-           200.0,
-       ).down(10.0)
-           .w_h(200.0, 200.0)
-           .label("Position")
-           .label_font_size(15)
-           .rgb(0.3, 0.3, 0.3)
-           .label_rgb(1.0, 1.0, 1.0)
-           .border(0.0)
-           .set(model.ids.position, ui)
-       {
-           model.position = Point2::new(x, y);
-       }
    }
    model
 }
@@ -246,14 +238,14 @@ fn view(app: &App, model: &Model, frame: Frame) -> Frame {
     // Begin drawing
    let draw = app.draw();
 
-   draw.background().rgb(0.02, 0.02, 0.02);
+   draw.background().rgb(0.01, 0.01, 0.01);
 
    let t = app.time;
    let win = app.window_rect();
 
    let n_points = NUMBER_OF_POINTS;
    let half_thickness = HALF_THICKNESS;
-   let hz = model.rotation;
+   let hz = model.frequency;
 
    let vertices = (0..n_points)
        .map( |i| {
@@ -275,12 +267,6 @@ fn view(app: &App, model: &Model, frame: Frame) -> Frame {
 
    draw.polyline().vertices(half_thickness, vertices);
 
-   draw.ellipse()
-       .xy(model.position)
-       .radius(model.scale)
-       .resolution(model.resolution)
-       .rotate(model.rotation)
-       .color(model.color);
 
    // Write the result of our drawing to the window's OpenGL frame.
    draw.to_frame(app, &frame).unwrap();
