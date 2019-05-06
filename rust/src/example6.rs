@@ -92,7 +92,7 @@ fn generate_score() -> String {
 }
 
 fn main() {
-    let mut cs = Csound::new();
+    let cs = Csound::new();
 
     /* Using SetOption() to configure Csound
     Note: use only one commandline flag at a time */

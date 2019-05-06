@@ -23,7 +23,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 
 /* Defining our Csound ORC code within a multiline String */
-static orc: &str = "sr=44100
+static ORC: &str = "sr=44100
   ksmps=32
   nchnls=2
   0dbfs=1
@@ -33,20 +33,20 @@ static orc: &str = "sr=44100
 endin";
 
 /*Defining our Csound SCO code */
-static sco: &str = "i1 0 10";
+static SCO: &str = "i1 0 10";
 
 fn main() {
-    let mut cs = Csound::new();
+    let cs = Csound::new();
 
     /* Using SetOption() to configure Csound
     Note: use only one commandline flag at a time */
     cs.set_option("-odac");
 
     /* Compile the Csound Orchestra string */
-    cs.compile_orc(orc).unwrap();
+    cs.compile_orc(ORC).unwrap();
 
     /* Compile the Csound SCO String */
-    cs.read_score(sco).unwrap();
+    cs.read_score(SCO).unwrap();
 
     /* When compiling from strings, this call is necessary
      * before doing any performing */

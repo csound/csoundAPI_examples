@@ -1,4 +1,4 @@
- /* Example 10 - More efficient Channel Communications
+/* Example 10 - More efficient Channel Communications
  * Adapted for Rust by Natanael Mojica <neithanmo@gmail.com>, 2019-01-30
  * from the original C example by Steven Yi <stevenyi@gmail.com>
  * 2013.10.28
@@ -24,29 +24,29 @@
 
 #![allow(non_camel_case_types, non_upper_case_globals, non_snake_case)]
 extern crate csound;
-use csound::{Csound, ControlChannelType, ControlChannelPtr};
+use csound::{ControlChannelPtr, ControlChannelType, Csound};
 
 extern crate rand;
 
 /* Trait with update/rest functions*/
-pub trait RandomFunc{
+pub trait RandomFunc {
     fn reset(&mut self);
     fn update(&mut self) -> f64;
 }
 
 #[derive(Default)]
 pub struct RandomLine {
-    dur:i32,
-    end:f64,
-    increment:f64,
-    current_val:f64,
-    base:f64,
-    range:f64,
+    dur: i32,
+    end: f64,
+    increment: f64,
+    current_val: f64,
+    base: f64,
+    range: f64,
 }
 
-impl RandomLine{
+impl RandomLine {
     /* Creates a RandomLine and initializes values */
-    fn create(base:f64, range:f64) -> RandomLine{
+    fn create(base: f64, range: f64) -> RandomLine {
         let mut retval = RandomLine::default();
         retval.base = base;
         retval.range = range;
@@ -55,16 +55,16 @@ impl RandomLine{
     }
 }
 
-impl RandomFunc for RandomLine{
+impl RandomFunc for RandomLine {
     /* Resets a RandomLine by calculating new end, dur, and increment values */
-    fn reset(&mut self){
+    fn reset(&mut self) {
         self.dur = (rand::random::<i32>() % 256) + 256;
         self.end = rand::random::<f64>();
         self.increment = (self.end - self.current_val) / (self.dur as f64);
     }
 
     /* Advances state of random line and returns current value */
-    fn update(&mut self) -> f64{
+    fn update(&mut self) -> f64 {
         let current_value = self.current_val;
         self.dur -= 1;
         if self.dur <= 0 {
@@ -80,28 +80,30 @@ pub struct Updater<'a, T> {
     data: T,
 }
 
-impl<'a, T: RandomFunc>  Updater<'a, T>{
-    fn create(csound: &'a Csound, channel_name: &str,data: T) -> Updater<'a, T>{
+impl<'a, T: RandomFunc> Updater<'a, T> {
+    fn create(csound: &'a Csound, channel_name: &str, data: T) -> Updater<'a, T> {
         let channel_pointer = create_channel(csound, channel_name);
-        Updater{
-            channel:channel_pointer,
+        Updater {
+            channel: channel_pointer,
             data,
         }
     }
 
-    fn update(&mut self){
-        let mut value = [0.0;1];
+    fn update(&mut self) {
+        let mut value = [0.0; 1];
         value[0] = self.data.update();
         self.channel.write(&value);
     }
 }
 
 fn create_channel<'a>(csound: &'a Csound, channel_name: &str) -> ControlChannelPtr<'a> {
-    match csound.get_channel_ptr(channel_name,
-        ControlChannelType::CSOUND_CONTROL_CHANNEL | ControlChannelType::CSOUND_INPUT_CHANNEL){
-            Ok(ptr)      => ptr,
-            Err(status)  => panic!("Channel not exists {:?}", status),
-        }
+    match csound.get_channel_ptr(
+        channel_name,
+        ControlChannelType::CSOUND_CONTROL_CHANNEL | ControlChannelType::CSOUND_INPUT_CHANNEL,
+    ) {
+        Ok(ptr) => ptr,
+        Err(status) => panic!("Channel not exists {:?}", status),
+    }
 }
 
 /* Defining our Csound ORC code within a multiline String */
@@ -120,7 +122,6 @@ static ORC: &str = "sr=44100
 endin";
 
 fn main() {
-
     let mut cs = Csound::new();
 
     /* Using SetOption() to configure Csound
@@ -138,20 +139,22 @@ fn main() {
     cs.start().unwrap();
 
     /* Create an array with two Channel Updaters */
-    let mut updaters = [Updater::<RandomLine>::create(&cs, "amp", RandomLine::create(0.4, 0.2)),
-                                Updater::<RandomLine>::create(&cs, "freq", RandomLine::create(400.0, 80.0))];
+    let mut updaters = [
+        Updater::<RandomLine>::create(&cs, "amp", RandomLine::create(0.4, 0.2)),
+        Updater::<RandomLine>::create(&cs, "freq", RandomLine::create(400.0, 80.0)),
+    ];
 
     /* Initialize channel values before running Csound */
-    for updater in updaters.iter_mut(){
+    for updater in updaters.iter_mut() {
         updater.update();
     }
-     /* The following is our main performance loop. We will perform one
+    /* The following is our main performance loop. We will perform one
      * block of sound at a time and continue to do so while it returns false,
      * which signifies to keep processing.
      */
     while !cs.perform_ksmps() {
         /* Update Channel Values */
-        for updater in updaters.iter_mut(){
+        for updater in updaters.iter_mut() {
             //update_channel(updater);
             updater.update();
         }
