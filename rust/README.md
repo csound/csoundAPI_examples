@@ -1,18 +1,22 @@
 # Csound 6 - Rust API Examples
 Author: Natanael Mojica <neithanmo@gmail.com>
-2018.01.31
+2019.05.11
 
 This folder contains examples for using the Csound API in Rust. They start with a minimal usage of Csound and each example afterwards builds upon the previous one.
 ## Useful Notes
 
 * It is assumed that you have installed Cargo, Rust and the csound libraries and API.
 For instructions about How install rust and tools, check the documentation for [How to install](https://www.rust-lang.org/tools/install)
-* To run one of the examples 1 to 10:
+### Examples 1 to 10
+These examples show the basic Csound usage.
+To run one of the examples 1 to 10:
 ```
 $ cd rust/
 $ cargo run --example example5
 ```
 This will run the example 5.
+### Example 11 - User Interface
+[![6](https://i.imgur.com/HZo07zU.gif)]
 The example 11 is intended to show how csound-rs can interact with other libraries, in this case a creative-coding framework called *nannou*.
 To run this example, just:
 ```
