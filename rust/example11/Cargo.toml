@@ -1,0 +1,11 @@
+[package]
+name = "example11"
+version = "0.1.0"
+authors = ["Natanael Mojica <neithanmo@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+csound = "^0.1.5"
+rand = "0.6.4"
+nannou = "0.8.0"
+lazy_static = "0.1.*"
