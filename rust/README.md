@@ -16,9 +16,12 @@ $ cargo run --example example5
 ```
 This will run the example 5.
 ### Example 11 - User Interface
+
 <img src="/assets/images/example.gif?raw=true" width="200px">
+
 The example 11 is intended to show how csound-rs can interact with other libraries, in this case a creative-coding framework called *nannou*.
 To run this example, just:
+
 ```
 $ cd example11/
 $ cargo run
