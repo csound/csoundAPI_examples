@@ -11,7 +11,7 @@
 
 package main
 
-import "github.com/fggp/go-csnd6"
+import "github.com/fggp/go-csnd"
 
 // Defining our Csound ORC code within a multiline String
 var orc string = `
@@ -29,7 +29,7 @@ endin`
 var sco string = "i1 0 1"
 
 func main() {
-	c := csnd6.Create(nil)
+	c := csnd.Create(nil)
 	c.SetOption("-odac") // Using SetOption() to configure Csound
 	// Note: use only one commandline flag at a time
 

@@ -19,7 +19,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/fggp/go-csnd6"
+	"github.com/fggp/go-csnd"
 	"math/rand"
 )
 
@@ -61,7 +61,7 @@ outs aout, aout
 endin`
 
 func main() {
-	c := csnd6.Create(nil) // create an instance of Csound
+	c := csnd.Create(nil) // create an instance of Csound
 	c.SetOption("-odac")   // Set option for Csound
 	c.CompileOrc(orc)      // Compile Orchestra from String
 

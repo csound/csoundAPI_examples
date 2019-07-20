@@ -26,7 +26,7 @@
 package main
 
 import (
-	"github.com/fggp/go-csnd6"
+	"github.com/fggp/go-csnd"
 	"math/rand"
 )
 
@@ -53,14 +53,14 @@ func (rl *RandomLine) Reset() {
 
 // The receiver has to be a pointer because the Value function
 // changes the value of the receiver members
-func (rl *RandomLine) Value() csnd6.MYFLT {
+func (rl *RandomLine) Value() csnd.MYFLT {
 	rl.dur -= 1
 	if rl.dur < 0 {
 		rl.Reset()
 	}
 	retVal := rl.curVal
 	rl.curVal += rl.increment
-	return csnd6.MYFLT(rl.base + rl.lrange*retVal)
+	return csnd.MYFLT(rl.base + rl.lrange*retVal)
 }
 
 // Our Orchestra for our project
@@ -81,7 +81,7 @@ outs aout, aout
 endin`
 
 func main() {
-	c := csnd6.Create(nil) // create an instance of Csound
+	c := csnd.Create(nil) // create an instance of Csound
 	c.SetOption("-odac")   // Set option for Csound
 	c.SetOption("-m7")     // Set option for Csound
 	c.CompileOrc(orc)      // Compile Orchestra from String

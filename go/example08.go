@@ -13,17 +13,17 @@
 // In C/C++/Objective-C, one can directly use MYFLT* to get/set values. However,
 // for Google Go language it is not possible to get/set the value on the pointer
 // itself. The Csound API for Goggle Go language uses a special wrapper object
-// called a slice of csnd6.MYFLT, which will hold a reference to a MYFLT*.
-// The []csnd6.MYFLT in turn is used in the classical Go way for setting
+// called a slice of csnd.MYFLT, which will hold a reference to a MYFLT*.
+// The []csnd.MYFLT in turn is used in the classical Go way for setting
 // and getting values.
 //
-// The code below shows how to use the []csnd6.MYFLT in conjunction with ChannelPtr
+// The code below shows how to use the []csnd.MYFLT in conjunction with ChannelPtr
 // to have a more optimized channel setting system.
 
 package main
 
 import (
-	"github.com/fggp/go-csnd6"
+	"github.com/fggp/go-csnd"
 	"math/rand"
 )
 
@@ -50,14 +50,14 @@ func (rl *RandomLine) Reset() {
 
 // The receiver has to be a pointer because the Value function
 // changes the value of the receiver members
-func (rl *RandomLine) Value() csnd6.MYFLT {
+func (rl *RandomLine) Value() csnd.MYFLT {
 	rl.dur -= 1
 	if rl.dur < 0 {
 		rl.Reset()
 	}
 	retVal := rl.curVal
 	rl.curVal += rl.increment
-	return csnd6.MYFLT(rl.base + rl.lrange*retVal)
+	return csnd.MYFLT(rl.base + rl.lrange*retVal)
 }
 
 // Our Orchestra for our project
@@ -78,7 +78,7 @@ outs aout, aout
 endin`
 
 func main() {
-	c := csnd6.Create(nil) // create an instance of Csound
+	c := csnd.Create(nil) // create an instance of Csound
 	c.SetOption("-odac")   // Set option for Csound
 	c.SetOption("-m7")     // Set option for Csound
 	c.CompileOrc(orc)      // Compile Orchestra from String
@@ -90,14 +90,14 @@ func main() {
 	c.Start() // When compiling from strings, this call is necessary before doing any performing
 
 	// the following calls store the Channel Pointer retreived from Csound into the
-	// returned []csnd6.MYFLT slices
+	// returned []csnd.MYFLT slices
 	ampChannel, err := c.ChannelPtr("amp",
-		csnd6.CSOUND_CONTROL_CHANNEL|csnd6.CSOUND_INPUT_CHANNEL)
+		csnd.CSOUND_CONTROL_CHANNEL|csnd.CSOUND_INPUT_CHANNEL)
 	if err != nil {
 		panic(err)
 	}
 	freqChannel, err := c.ChannelPtr("freq",
-		csnd6.CSOUND_CONTROL_CHANNEL|csnd6.CSOUND_INPUT_CHANNEL)
+		csnd.CSOUND_CONTROL_CHANNEL|csnd.CSOUND_INPUT_CHANNEL)
 	if err != nil {
 		panic(err)
 	}
@@ -105,7 +105,7 @@ func main() {
 	amp := NewRandomLine(.4, .2)
 	freq := NewRandomLine(400, 80)
 
-	ampChannel[0] = amp.Value() // note we are now setting values on the []csnd6.MYFLT slice
+	ampChannel[0] = amp.Value() // note we are now setting values on the []csnd.MYFLT slice
 	freqChannel[0] = freq.Value()
 
 	for c.PerformKsmps() == 0 {

@@ -4,7 +4,7 @@
 //
 //
 // This example continues on from Example 8 and just refactors the
-// creation and setup of []csnd6.MYFLT's into a createChannel()
+// creation and setup of []csnd.MYFLT's into a createChannel()
 // function. This example illustrates some natural progression that
 // might occur in your own API-based projects, and how you might
 // simplify your own code.
@@ -12,7 +12,7 @@
 package main
 
 import (
-	"github.com/fggp/go-csnd6"
+	"github.com/fggp/go-csnd"
 	"math/rand"
 )
 
@@ -39,19 +39,19 @@ func (rl *RandomLine) Reset() {
 
 // The receiver has to be a pointer because the Value function
 // changes the value of the receiver members
-func (rl *RandomLine) Value() csnd6.MYFLT {
+func (rl *RandomLine) Value() csnd.MYFLT {
 	rl.dur -= 1
 	if rl.dur < 0 {
 		rl.Reset()
 	}
 	retVal := rl.curVal
 	rl.curVal += rl.increment
-	return csnd6.MYFLT(rl.base + rl.lrange*retVal)
+	return csnd.MYFLT(rl.base + rl.lrange*retVal)
 }
 
-func createChannel(csound csnd6.CSOUND, channelName string) []csnd6.MYFLT {
+func createChannel(csound csnd.CSOUND, channelName string) []csnd.MYFLT {
 	chn, err := csound.ChannelPtr(channelName,
-		csnd6.CSOUND_CONTROL_CHANNEL|csnd6.CSOUND_INPUT_CHANNEL)
+		csnd.CSOUND_CONTROL_CHANNEL|csnd.CSOUND_INPUT_CHANNEL)
 	if err != nil {
 		panic(err)
 	}
@@ -76,7 +76,7 @@ outs aout, aout
 endin`
 
 func main() {
-	c := csnd6.Create(nil) // create an instance of Csound
+	c := csnd.Create(nil) // create an instance of Csound
 	c.SetOption("-odac")   // Set option for Csound
 	c.SetOption("-m7")     // Set option for Csound
 	c.CompileOrc(orc)      // Compile Orchestra from String
@@ -87,7 +87,7 @@ func main() {
 
 	c.Start() // When compiling from strings, this call is necessary before doing any performing
 
-	ampChannel := createChannel(c, "amp") // uses utility method to create a channel and get a []csnd6.MYFLT
+	ampChannel := createChannel(c, "amp") // uses utility method to create a channel and get a []csnd.MYFLT
 	freqChannel := createChannel(c, "freq")
 
 	amp := NewRandomLine(.4, .2)

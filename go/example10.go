@@ -21,7 +21,7 @@
 package main
 
 import (
-	"github.com/fggp/go-csnd6"
+	"github.com/fggp/go-csnd"
 	"math/rand"
 )
 
@@ -48,23 +48,23 @@ func (rl *RandomLine) Reset() {
 
 // The receiver has to be a pointer because the Value function
 // changes the value of the receiver members
-func (rl *RandomLine) Value() csnd6.MYFLT {
+func (rl *RandomLine) Value() csnd.MYFLT {
 	rl.dur -= 1
 	if rl.dur < 0 {
 		rl.Reset()
 	}
 	retVal := rl.curVal
 	rl.curVal += rl.increment
-	return csnd6.MYFLT(rl.base + rl.lrange*retVal)
+	return csnd.MYFLT(rl.base + rl.lrange*retVal)
 }
 
 type Updater interface {
-	Value() csnd6.MYFLT
+	Value() csnd.MYFLT
 }
 
-func createChannel(csound csnd6.CSOUND, channelName string) []csnd6.MYFLT {
+func createChannel(csound csnd.CSOUND, channelName string) []csnd.MYFLT {
 	chn, err := csound.ChannelPtr(channelName,
-		csnd6.CSOUND_CONTROL_CHANNEL|csnd6.CSOUND_INPUT_CHANNEL)
+		csnd.CSOUND_CONTROL_CHANNEL|csnd.CSOUND_INPUT_CHANNEL)
 	if err != nil {
 		panic(err)
 	}
@@ -73,10 +73,10 @@ func createChannel(csound csnd6.CSOUND, channelName string) []csnd6.MYFLT {
 
 type ChannelUpdater struct {
 	updater Updater
-	channel []csnd6.MYFLT
+	channel []csnd.MYFLT
 }
 
-func NewChannelUpdater(csound csnd6.CSOUND, channelName string, updater Updater) ChannelUpdater {
+func NewChannelUpdater(csound csnd.CSOUND, channelName string, updater Updater) ChannelUpdater {
 	var cu ChannelUpdater
 
 	cu.updater = updater
@@ -108,7 +108,7 @@ outs aout, aout
 endin`
 
 func main() {
-	c := csnd6.Create(nil) // create an instance of Csound
+	c := csnd.Create(nil) // create an instance of Csound
 	c.SetOption("-odac")   // Set option for Csound
 	c.SetOption("-m7")     // Set option for Csound
 	c.CompileOrc(orc)      // Compile Orchestra from String

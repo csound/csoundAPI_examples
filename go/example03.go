@@ -8,7 +8,7 @@
 
 package main
 
-import "github.com/fggp/go-csnd6"
+import "github.com/fggp/go-csnd"
 
 // Our Orchestra for our project
 var orc string = `
@@ -26,7 +26,7 @@ endin`
 var sco string = "i1 0 1"
 
 func main() {
-	c := csnd6.Create(nil) // create an instance of Csound
+	c := csnd.Create(nil) // create an instance of Csound
 	c.SetOption("-odac")   // Set option for Csound
 	c.CompileOrc(orc)      // Compile Orchestra from String
 	c.ReadScore(sco)       // Read in Score from String

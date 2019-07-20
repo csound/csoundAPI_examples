@@ -35,7 +35,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/fggp/go-csnd6"
+	"github.com/fggp/go-csnd"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -61,7 +61,7 @@ var sco string = "i1 0 1 0.5 8.00"
 var sco2, sco3 string
 
 func main() {
-	c := csnd6.Create(nil) // create an instance of Csound
+	c := csnd.Create(nil) // create an instance of Csound
 	c.SetOption("-odac")   // Set option for Csound
 	c.CompileOrc(orc)      // Compile Orchestra from String
 
