@@ -2,6 +2,8 @@
 # Author: Steven Yi <stevenyi@gmail.com>
 # 2013.10.28
 #
+# Adapted for Python 3 by François Pinot, July 2021
+#
 # In this example, we will look at three techniques for generating our Score. 
 # 
 # The first is one we have already seen, which is to just write out the score

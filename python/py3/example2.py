@@ -2,6 +2,8 @@
 # Author: Steven Yi <stevenyi@gmail.com>
 # 2013.10.28
 #
+# Adapted for Python 3 by François Pinot, July 2021
+#
 # In this example, we move from using an external CSD file to 
 # embedding our Csound ORC and SCO code within our Python project.
 # Besides allowing encapsulating the code within the same file,

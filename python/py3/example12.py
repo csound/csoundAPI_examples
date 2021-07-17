@@ -2,6 +2,8 @@
 # Author: Steven Yi <stevenyi@gmail.com>
 # 2013.10.28
 #
+# Adapted for Python 3 by François Pinot, July 2021
+#
 # This example demonstrates a slightly more advanced GUI example. 
 # It uses a slider to allow setting the value of the frequency that
 # the notes initiated by the button will play at.  

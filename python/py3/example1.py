@@ -2,6 +2,8 @@
 # Author: Steven Yi <stevenyi@gmail.com>
 # 2013.10.28
 #
+# Adapted for Python 3 by François Pinot, July 2021
+#
 # This example is a barebones example for creating an instance of Csound, 
 # compiling a pre-existing CSD, calling Perform to run Csound to completion,
 # then Stop and exit.  

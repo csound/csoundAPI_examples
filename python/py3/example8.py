@@ -2,6 +2,8 @@
 # Author: Steven Yi <stevenyi@gmail.com>
 # 2013.10.28
 #
+# Adapted for Python 3 by François Pinot, July 2021
+#
 # This example builds on Example 7 by replacing the calls to SetChannel
 # with using GetChannelPtr. In the Csound API, using SetChannel and GetChannel
 # is great for quick work, but ultimately it is slower than pre-fetching the

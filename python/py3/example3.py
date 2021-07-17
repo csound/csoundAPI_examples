@@ -2,6 +2,8 @@
 # Author: Steven Yi <stevenyi@gmail.com>
 # 2013.10.28
 #
+# Adapted for Python 3 by François Pinot, July 2021
+#
 # In this example, we use a while loop to perform Csound one audio block at a time.
 # This technique is important to know as it will allow us to do further processing
 # safely at block boundaries.  We will explore the technique further in later examples.

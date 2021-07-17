@@ -2,6 +2,8 @@
 # Author: Steven Yi <stevenyi@gmail.com>
 # 2013.10.28
 #
+# Adapted for Python 3 by François Pinot, July 2021
+#
 # This example demonstrates a minimal Graphical User Interface application.
 # The setup of Csound and starting of the CsoundPerformanceThread is done in 
 # the global scripting space.  Afterwards, a Tkinter GUI is created that has

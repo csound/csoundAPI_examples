@@ -2,6 +2,8 @@
 # Author: Steven Yi <stevenyi@gmail.com>
 # 2013.10.28
 #
+# Adapted for Python 3 by François Pinot, July 2021
+#
 # This example introduces using Csound's Channel System to communicate 
 # continuous control data (k-rate) from a host program to Csound. The 
 # first thing to note is the RandomLine class. It takes in a base value

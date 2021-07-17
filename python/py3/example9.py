@@ -2,6 +2,8 @@
 # Author: Steven Yi <stevenyi@gmail.com>
 # 2013.10.28
 #
+# Adapted for Python 3 by François Pinot, July 2021
+#
 # This example continues on from Example 9 and just refactors the
 # creation and setup of CsoundMYFLTArray's into a createChannel() 
 # function.  This example illustrates some natural progression that

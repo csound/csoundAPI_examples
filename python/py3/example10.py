@@ -2,6 +2,8 @@
 # Author: Steven Yi <stevenyi@gmail.com>
 # 2013.10.28
 #
+# Adapted for Python 3 by François Pinot, July 2021
+#
 # This example continues on from Example 10 and introduces a 
 # ChannelUpdater object. The ChannelUpdater will create and 
 # store a CsoundMYFLTArray that is wrapping a Csound Channel.

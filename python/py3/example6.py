@@ -2,6 +2,8 @@
 # Author: Steven Yi <stevenyi@gmail.com>
 # 2013.10.28
 #
+# Adapted for Python 3 by François Pinot, July 2021
+#
 # This example continues on from Example 5, rewriting the example using
 # a Class called Note. The note example has its __str__ method implemented
 # to generate a well-formatted Csound SCO note.  

@@ -2,6 +2,8 @@
 # Author: Steven Yi <stevenyi@gmail.com>
 # 2013.10.28
 #
+# Adapted for Python 3 by François Pinot, July 2021
+#
 # In this example, we use a CsoundPerformanceThread to run Csound in 
 # a native thread.  Using a native thread is important to get the best
 # runtime performance for the audio engine.  It is especially important
