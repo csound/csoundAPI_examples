@@ -1,0 +1,4 @@
+github.com/fggp/go-csnd v1.0.0 h1:33Rm1s/63Ov3K28wz0jmuEEgvMvPfZzf6vEX1TlRwwo=
+github.com/fggp/go-csnd v1.0.0/go.mod h1:GCN006c7JrysriWgsHN10GtpuAK+24onKAsbxvELncY=
+github.com/fggp/go-csperfthread v1.0.0 h1:XQhfPOHEk9rJJn3rUwjuImWGpw4tvpK/fyM4leyyEvs=
+github.com/fggp/go-csperfthread v1.0.0/go.mod h1:Oz0yB0rqHLq7ECDnkxLTw0kZf9HaczWF3Jen1s4ixdI=
