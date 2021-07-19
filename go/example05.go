@@ -62,8 +62,8 @@ var sco2, sco3 string
 
 func main() {
 	c := csnd.Create(nil) // create an instance of Csound
-	c.SetOption("-odac")   // Set option for Csound
-	c.CompileOrc(orc)      // Compile Orchestra from String
+	c.SetOption("-odac")  // Set option for Csound
+	c.CompileOrc(orc)     // Compile Orchestra from String
 
 	// Example 2 - Generating Score string with a loop
 	for i := 0; i < 13; i++ {

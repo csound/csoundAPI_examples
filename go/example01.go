@@ -19,9 +19,9 @@ func main() {
 	// whose first element is the program name like in the C API
 
 	c := csnd.Create(nil) // Create an instance of the Csound object
-	c.Compile(args)        // Compile a pre-defined test1.csd file
-	c.Perform()            // This call runs Csound to completion
-	c.Stop()               // At this point, Csound is already stopped,
+	c.Compile(args)       // Compile a pre-defined test1.csd file
+	c.Perform()           // This call runs Csound to completion
+	c.Stop()              // At this point, Csound is already stopped,
 	//                        but this call is here as it is something that
 	//                        you would generally call in real-world contexts
 }

@@ -62,8 +62,8 @@ endin`
 
 func main() {
 	c := csnd.Create(nil) // create an instance of Csound
-	c.SetOption("-odac")   // Set option for Csound
-	c.CompileOrc(orc)      // Compile Orchestra from String
+	c.SetOption("-odac")  // Set option for Csound
+	c.CompileOrc(orc)     // Compile Orchestra from String
 
 	var notes []Note          // initialize a list to hold lists of values
 	for i := 0; i < 13; i++ { // populate that list

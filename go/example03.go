@@ -27,10 +27,10 @@ var sco string = "i1 0 1"
 
 func main() {
 	c := csnd.Create(nil) // create an instance of Csound
-	c.SetOption("-odac")   // Set option for Csound
-	c.CompileOrc(orc)      // Compile Orchestra from String
-	c.ReadScore(sco)       // Read in Score from String
-	c.Start()              // When compiling from strings, this call is necessary before doing any performing
+	c.SetOption("-odac")  // Set option for Csound
+	c.CompileOrc(orc)     // Compile Orchestra from String
+	c.ReadScore(sco)      // Read in Score from String
+	c.Start()             // When compiling from strings, this call is necessary before doing any performing
 
 	// The following is our main performance loop. We will perform one block of sound at a time
 	// and continue to do so while it returns 0, which signifies to keep processing.  We will

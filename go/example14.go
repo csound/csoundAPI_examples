@@ -106,9 +106,9 @@ func process(c csnd.CSOUND, channels []ChannelUpdater, done chan bool) {
 
 func main() {
 	c := csnd.Create(nil) // create an instance of Csound
-	c.SetOption("-odac")   // Set option for Csound
-	c.SetOption("-m7")     // Set option for Csound
-	c.CompileOrc(orc)      // Compile Orchestra from String
+	c.SetOption("-odac")  // Set option for Csound
+	c.SetOption("-m7")    // Set option for Csound
+	c.CompileOrc(orc)     // Compile Orchestra from String
 
 	sco := "i1 0 60\n"
 
