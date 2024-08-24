@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2024 Victor Lazzarini
 
-  API Examples: compiling from string 
+  API Examples: compiling code on-the-fly
   
   This file is part of Csound.
 
@@ -21,6 +21,7 @@
   02111-1307 USA
 
 */
+
 #if defined(__APPLE__)
 #include <CsoundLib64/csound.hpp>
 #else
@@ -39,26 +40,48 @@ while icnt <= 12 do
  schedule 1, icnt*0.25, 0.3, 0.1, cpsmidinn(60+icnt)
  icnt += 1
 od
-event_i "e", icnt*0.3
+event_i "e", 10
+)orc";
+
+
+const char *perf =  R"orc(
+icnt = 0
+while icnt <= 12 do
+ schedule 1, icnt*0.25, 0.3, 0.1, cpsmidinn(60+icnt)
+ icnt += 1
+od
 )orc";
 
 int main(int argc, const char *argv[]) {
   /* Create the Csound engine instance */
   Csound csound;
   int res = CSOUND_SUCCESS, i;
-    /* Set options checking for any errors */
-    for(i = 1; i < argc; i++)
-      res += csound.SetOption(argv[i]);
+  /* Set options checking for any errors */
+  for(i = 1; i < argc; i++)
+    res += csound.SetOption(argv[i]);
+  if(res == CSOUND_SUCCESS) {
+    /* Compile code from string, synchronously */
+    res = csound.CompileOrc(code, 0);
     if(res == CSOUND_SUCCESS) {
-      /* Compile code from string, synchronously */
-      res = csound.CompileOrc(code, 0);
-      if(res == CSOUND_SUCCESS) {
-        /* Start engine */
-        res = csound.Start();
-        /* compute audio blocks */
-        while(res == CSOUND_SUCCESS)
-          res = csound.PerformKsmps();
+      char evt[64];
+      MYFLT time  = 0.;
+      const MYFLT incr = 1./csound.GetKr();
+      /* Start engine */
+      res = csound.Start();
+      /* compute audio blocks */
+      while(res == CSOUND_SUCCESS) {
+        res = csound.PerformKsmps();
+        /* count time */
+        time += incr;
+        /* after 2.5 seconds */
+        if(time > 2.5) {
+          /* compile new code, synchronously*/
+          csound.CompileOrc(perf, 0);
+          /* reset time */
+          time -= 2.5;
+        } 
       }
     }
-    return 0;
+  }
+  return 0;
 }

@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2024 Victor Lazzarini
 
-  API Examples: compiling from string 
+  API Examples: compiling code on-the-fly
   
   This file is part of Csound.
 
@@ -21,6 +21,7 @@
   02111-1307 USA
 
 */
+#include <stdio.h>
 #if defined(__APPLE__)
 #include <CsoundLib64/csound.h>
 #else
@@ -31,15 +32,24 @@ const char *code =
   "0dbfs = 1              \n" 
   "instr 1                \n"
   "a1 expon p4,p3,0.001   \n"
-  "a2 oscil a1, p5        \n"
+  "a2 oscil a1,p5         \n"
   "    out a2             \n"
-  "endin                  \n" 
-  "icnt = 0               \n"
-  "while icnt <= 12 do    \n" 
-  " schedule 1, icnt*0.25, 0.3, 0.1, cpsmidinn(60+icnt)\n"
-  " icnt += 1             \n"
-  "od                     \n"
-  "event_i \"e\", icnt*0.3\n";
+  "endin                  \n"
+  "icnt = 0 \n"
+  "while icnt < 12 do\n"
+  "schedule 1,icnt*0.25,0.3,0.1,"
+  "cpsmidinn(icnt+60)\n"
+  "icnt += 1\n"
+  "od\n"
+  "event_i \"e\", 10\n";
+
+const char *perf = 
+  "icnt = 0 \n"
+  "while icnt < 12 do\n"
+  "schedule 1,icnt*0.25,0.3,0.1,"
+  "cpsmidinn(icnt+60)\n"
+  "icnt += 1\n"
+  "od\n";
 
 int main(int argc, const char *argv[]) {
   /* Create the Csound engine instance */
@@ -54,16 +64,29 @@ int main(int argc, const char *argv[]) {
       /* Compile code from string, synchronously */
       res = csoundCompileOrc(csound, code, 0);
       if(res == CSOUND_SUCCESS) {
+        char evt[64];
+        MYFLT time  = 0.;
+        const MYFLT incr = 1./csoundGetKr(csound);
         /* Start engine */
         res = csoundStart(csound);
         /* compute audio blocks */
-        while(res == CSOUND_SUCCESS)
+        while(res == CSOUND_SUCCESS) {
           res = csoundPerformKsmps(csound);
+          /* count time */
+          time += incr;
+          /* after 2.5 seconds */
+          if(time > 2.5) {
+            /* compile new code, synchronously*/
+            csoundCompileOrc(csound, perf, 0);
+            /* reset time */
+            time -= 2.5;
+          } 
+        }
       }
     }
-    /* Destroy the engine instance */
-    csoundDestroy(csound);
-    return 0;
+      /* Destroy the engine instance */
+      csoundDestroy(csound);
+      return 0;
   }
-  return -1;
+    return -1;
 }

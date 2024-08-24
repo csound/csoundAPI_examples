@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2024 Victor Lazzarini
 
-  API Examples: compiling from string 
+  API Examples: control channels
   
   This file is part of Csound.
 
@@ -21,44 +21,51 @@
   02111-1307 USA
 
 */
+#include <sstream>
 #if defined(__APPLE__)
 #include <CsoundLib64/csound.hpp>
 #else
 #include <csound/csound.hpp>
 #endif
 
-const char *code = R"orc(
-0dbfs = 1
-instr 1
- a1 expon p4,p3,0.001
- a2 oscil a1, p5
-    out a2
+const char *code = R"orc(   
+0dbfs = 1        
+instr 1  
+kp chnget "pitch"
+a1 expon p4,p3,0.001   
+a2 oscil a1,cpsmidinn(p5)*kp
+   out a2    
 endin
-icnt = 0
-while icnt <= 12 do
- schedule 1, icnt*0.25, 0.3, 0.1, cpsmidinn(60+icnt)
- icnt += 1
-od
-event_i "e", icnt*0.3
 )orc";
 
 int main(int argc, const char *argv[]) {
   /* Create the Csound engine instance */
   Csound csound;
   int res = CSOUND_SUCCESS, i;
-    /* Set options checking for any errors */
-    for(i = 1; i < argc; i++)
-      res += csound.SetOption(argv[i]);
+  /* Set options checking for any errors */
+  for(i = 1; i < argc; i++)
+    res += csound.SetOption(argv[i]);
+  if(res == CSOUND_SUCCESS) {
+    /* Compile code from string, synchronously */
+    res = csound.CompileOrc(code, 0);
     if(res == CSOUND_SUCCESS) {
-      /* Compile code from string, synchronously */
-      res = csound.CompileOrc(code, 0);
-      if(res == CSOUND_SUCCESS) {
-        /* Start engine */
-        res = csound.Start();
-        /* compute audio blocks */
-        while(res == CSOUND_SUCCESS)
-          res = csound.PerformKsmps();
+      std::ostringstream evt;
+      MYFLT dur = 5.;
+      MYFLT pitch = 1., incr = 1./(dur*csound.GetKr());
+      /* Start engine */
+      res = csound.Start();
+      /* send realtine event, synchronously */
+      evt << "i1 0 " << dur <<  " 0.1 60\n";
+      csound.EventString(evt.str().c_str(), 0);
+      /* compute audio blocks */
+      while(res == CSOUND_SUCCESS) {       
+        csound.SetControlChannel("pitch", pitch);
+        res = csound.PerformKsmps();
+        pitch += incr;
+        if(pitch > 2) 
+          csound.EventString("e 0", 0);
       }
     }
-    return 0;
+  }
+  return 0;
 }

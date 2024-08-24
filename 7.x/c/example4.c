@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2024 Victor Lazzarini
 
-  API Examples: compiling from string 
+  API Examples: control channels
   
   This file is part of Csound.
 
@@ -21,6 +21,7 @@
   02111-1307 USA
 
 */
+#include <stdio.h>
 #if defined(__APPLE__)
 #include <CsoundLib64/csound.h>
 #else
@@ -30,16 +31,11 @@
 const char *code =    
   "0dbfs = 1              \n" 
   "instr 1                \n"
+  "kp chnget \"pitch\"    \n"
   "a1 expon p4,p3,0.001   \n"
-  "a2 oscil a1, p5        \n"
+  "a2 oscil a1,cpsmidinn(p5)*kp\n"
   "    out a2             \n"
-  "endin                  \n" 
-  "icnt = 0               \n"
-  "while icnt <= 12 do    \n" 
-  " schedule 1, icnt*0.25, 0.3, 0.1, cpsmidinn(60+icnt)\n"
-  " icnt += 1             \n"
-  "od                     \n"
-  "event_i \"e\", icnt*0.3\n";
+  "endin                  \n";
 
 int main(int argc, const char *argv[]) {
   /* Create the Csound engine instance */
@@ -54,11 +50,22 @@ int main(int argc, const char *argv[]) {
       /* Compile code from string, synchronously */
       res = csoundCompileOrc(csound, code, 0);
       if(res == CSOUND_SUCCESS) {
+        char evt[64];
+        MYFLT dur = 5.;
+        MYFLT pitch = 1., incr = 1./(dur*csoundGetKr(csound));
         /* Start engine */
         res = csoundStart(csound);
-        /* compute audio blocks */
-        while(res == CSOUND_SUCCESS)
+        /* send realtine event, synchronously */
+        snprintf(evt, 64, "i1 0 %f 0.1 60\n", dur);
+        csoundEventString(csound, evt, 0);
+       /* compute audio blocks */
+        while(res == CSOUND_SUCCESS) {       
+          csoundSetControlChannel(csound, "pitch", pitch);
           res = csoundPerformKsmps(csound);
+          pitch += incr;
+          if(pitch > 2) 
+           csoundEventString(csound, "e 0", 0);
+        }
       }
     }
     /* Destroy the engine instance */

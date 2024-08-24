@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2024 Victor Lazzarini
 
-  API Examples: compiling from string 
+  API Examples: realtime events
   
   This file is part of Csound.
 
@@ -21,44 +21,52 @@
   02111-1307 USA
 
 */
+#include <stdio.h>
 #if defined(__APPLE__)
-#include <CsoundLib64/csound.hpp>
+#include <CsoundLib64/csound.h>
 #else
-#include <csound/csound.hpp>
+#include <csound/csound.h>
 #endif
 
-const char *code = R"orc(
-0dbfs = 1
-instr 1
- a1 expon p4,p3,0.001
- a2 oscil a1, p5
-    out a2
-endin
-icnt = 0
-while icnt <= 12 do
- schedule 1, icnt*0.25, 0.3, 0.1, cpsmidinn(60+icnt)
- icnt += 1
-od
-event_i "e", icnt*0.3
-)orc";
+const char *code =    
+  "0dbfs = 1              \n" 
+  "instr 1                \n"
+  "a1 expon p4,p3,0.001   \n"
+  "a2 oscil a1,cpsmidinn(p5)\n"
+  "    out a2             \n"
+  "endin                  \n";
 
 int main(int argc, const char *argv[]) {
   /* Create the Csound engine instance */
-  Csound csound;
-  int res = CSOUND_SUCCESS, i;
+  CSOUND *csound = csoundCreate(NULL, NULL);
+
+  if(csound != NULL) {
+    int res = CSOUND_SUCCESS, i;
     /* Set options checking for any errors */
     for(i = 1; i < argc; i++)
-      res += csound.SetOption(argv[i]);
+      res += csoundSetOption(csound, argv[i]);
     if(res == CSOUND_SUCCESS) {
       /* Compile code from string, synchronously */
-      res = csound.CompileOrc(code, 0);
+      res = csoundCompileOrc(csound, code, 0);
       if(res == CSOUND_SUCCESS) {
+        char evt[64];
         /* Start engine */
-        res = csound.Start();
+        res = csoundStart(csound);
+        /* send realtine events, synchronously */
+        for(i = 0; i < 12; i++) {
+          snprintf(evt, 64, "i1 %f 0.3 0.1 %d\n", i*0.25, i+60);
+          csoundEventString(csound, evt, 0);
+        }
+        snprintf(evt, 64, "e %f\n", i*0.3);
+        csoundEventString(csound, evt, 0);
         /* compute audio blocks */
         while(res == CSOUND_SUCCESS)
-          res = csound.PerformKsmps();
+          res = csoundPerformKsmps(csound);
       }
     }
+    /* Destroy the engine instance */
+    csoundDestroy(csound);
     return 0;
+  }
+  return -1;
 }
