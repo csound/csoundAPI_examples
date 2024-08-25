@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2024 Victor Lazzarini
 
-  API Examples: sending events
+  API Examples: sending signals to main input
   
   This file is part of Csound.
 
@@ -21,7 +21,7 @@
   02111-1307 USA
 
 */
-#include <stdio.h>
+#include <math.h>
 #if defined(__APPLE__)
 #include <CsoundLib64/csound.h>
 #else
@@ -31,10 +31,19 @@
 const char *code =    
   "0dbfs = 1              \n" 
   "instr 1                \n"
+  "asig in                \n"
+  "amod powoftwo asig     \n"
   "a1 expon p4,p3,0.001   \n"
-  "a2 oscil a1,cpsmidinn(p5)\n"
+  "a2 oscil a1,p5*amod    \n"
   "    out a2             \n"
-  "endin                  \n";
+  "endin                  \n"
+  "icnt = 0 \n"
+  "while icnt < 12 do\n"
+  "schedule 1,icnt*0.25,0.3,0.5,"
+  "cpsmidinn(icnt+60)\n"
+  "icnt += 1\n"
+  "od\n"
+  "event_i \"e\", icnt*0.25\n";
 
 int main(int argc, const char *argv[]) {
   /* Create the Csound engine instance */
@@ -49,24 +58,28 @@ int main(int argc, const char *argv[]) {
       /* Compile code from string, synchronously */
       res = csoundCompileOrc(csound, code, 0);
       if(res == CSOUND_SUCCESS) {
-        char evt[64];
+        MYFLT *spin, si = 1./csoundGetSr(csound);
+        double ph = 0.; 
+        int nsmps = csoundGetKsmps(csound);
         /* Start engine */
         res = csoundStart(csound);
-        /* send realtine events, synchronously */
-        for(i = 0; i < 12; i++) {
-          snprintf(evt, 64, "i1 %f 0.3 0.1 %d\n", i*0.25, i+60);
-          csoundEventString(csound, evt, 0);
-        }
-        snprintf(evt, 64, "e %f\n", i*0.3);
-        csoundEventString(csound, evt, 0);
+        /* get spin pointer */
+        spin = csoundGetSpin(csound);
         /* compute audio blocks */
-        while(res == CSOUND_SUCCESS)
+        while(res == CSOUND_SUCCESS) {
+          /* compute 1Hz sine modulation input signal */
+          for(i = 0; i < nsmps; i++) {
+            spin[i] = sin(2*M_PI*ph);
+            ph += si;
+            ph -= (int) ph;
+          }
           res = csoundPerformKsmps(csound);
+        }
       }
     }
     /* Destroy the engine instance */
     csoundDestroy(csound);
     return 0;
   }
-  return -1;
+    return -1;
 }

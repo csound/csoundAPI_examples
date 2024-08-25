@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2024 Victor Lazzarini
 
-  API Examples: sending events
+  API Examples: accessing function tables
   
   This file is part of Csound.
 
@@ -21,7 +21,7 @@
   02111-1307 USA
 
 */
-#include <stdio.h>
+
 #if defined(__APPLE__)
 #include <CsoundLib64/csound.h>
 #else
@@ -31,10 +31,14 @@
 const char *code =    
   "0dbfs = 1              \n" 
   "instr 1                \n"
-  "a1 expon p4,p3,0.001   \n"
-  "a2 oscil a1,cpsmidinn(p5)\n"
+  "k1 oscil 1,0.7,1       \n"
+  "a1 linen p4,0.1,p3,0.1 \n"
+  "a2 oscil a1,cpsmidinn(p5+k1)\n"
   "    out a2             \n"
-  "endin                  \n";
+  "endin                  \n"
+  "ifn ftgen 1,0,8,7,0,8,0\n"
+  "schedule 1,0,5,0.5,60\n"
+  "event_i \"e\", 5\n";
 
 int main(int argc, const char *argv[]) {
   /* Create the Csound engine instance */
@@ -49,19 +53,19 @@ int main(int argc, const char *argv[]) {
       /* Compile code from string, synchronously */
       res = csoundCompileOrc(csound, code, 0);
       if(res == CSOUND_SUCCESS) {
-        char evt[64];
+        MYFLT *ftab;
+        int tlen;
         /* Start engine */
         res = csoundStart(csound);
-        /* send realtine events, synchronously */
-        for(i = 0; i < 12; i++) {
-          snprintf(evt, 64, "i1 %f 0.3 0.1 %d\n", i*0.25, i+60);
-          csoundEventString(csound, evt, 0);
+        if(res == CSOUND_SUCCESS) {
+          /* get table and fill it */
+          tlen = csoundGetTable(csound, &ftab, 1);
+          for(i = 0; i < tlen; i++)
+            ftab[i] = (MYFLT) i;
+          /* compute audio blocks */
+          while(res == CSOUND_SUCCESS) 
+            res = csoundPerformKsmps(csound);
         }
-        snprintf(evt, 64, "e %f\n", i*0.3);
-        csoundEventString(csound, evt, 0);
-        /* compute audio blocks */
-        while(res == CSOUND_SUCCESS)
-          res = csoundPerformKsmps(csound);
       }
     }
     /* Destroy the engine instance */
