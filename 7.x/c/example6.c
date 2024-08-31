@@ -51,10 +51,8 @@ int main(int argc, const char *argv[]) {
 
   if(csound != NULL) {
     int res;
-    /* enforce realtime output */
-    csoundSetOption(csound, "-odac");
-    /* suppress terminal messages */
-    csoundSetOption(csound, "-m0");
+    /* enforce realtime output and suppress messages */
+    csoundSetOption(csound, "-o dac -dm0");
     /* Compile code from string */
     res = csoundCompileOrc(csound, code, 0);
     if(res == CSOUND_SUCCESS) {
@@ -70,7 +68,7 @@ int main(int argc, const char *argv[]) {
         csoundMessage(csound, "Csound>");
         /* take in event from stdin, 
            use event e <t> to finish after t secs*/
-        fgets(evt, 63, stdin);
+        fgets(evt, 63, stdin); 
         /* send in event asychronously */
         csoundEventString(csound, evt, 1);
         /* and exit loop if requested */
@@ -83,7 +81,9 @@ int main(int argc, const char *argv[]) {
     }
     /* Destroy the engine instance */
     csoundDestroy(csound);
+    
     return 0;
    }
+
   return -1;
 }

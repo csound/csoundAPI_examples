@@ -49,10 +49,8 @@ int main(int argc, const char *argv[]) {
   /* Create the Csound engine instance */
   Csound csound;
   int res;
-  /* enforce realtime output */
-  csound.SetOption("-odac");
-  /* suppress terminal messages */
-  csound.SetOption("-m0");
+  /* enforce realtime output and suppress messages */
+  csound.SetOption("-o dac -dm0");
   /* Compile code from string */
   res = csound.CompileOrc(code, 0);
   if(res == CSOUND_SUCCESS) {
@@ -63,17 +61,18 @@ int main(int argc, const char *argv[]) {
     /* start performance thread */
     if(res == CSOUND_SUCCESS)
       csoundPerformanceThread.Play();
-    while(csoundPerformanceThread.IsRunning()) {
+    while (csoundPerformanceThread.IsRunning()) {
       /* prompt for input */
       csound.Message("Csound>");
       /* take in event from stdin, 
-         use event e <t> to finish after t secs*/
+         use event e <t> to finish after t secs 
+      */
       fgets(evt, 63, stdin);
       /* send in event asychronously */
       csound.EventString(evt, 1);
-      /* and exit loop if requested */
+      /* exit loop if requested */ 
       if(evt[0] == 'e') break;
-    }
+    };
     /* Join thread an wait for it to finish */
     csoundPerformanceThread.Join();
   }
