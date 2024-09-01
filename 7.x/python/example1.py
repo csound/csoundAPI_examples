@@ -21,7 +21,7 @@ def perform(cs):
             break
     
 cs = ctcsound.Csound()            # Create an instance of the Csound object
-args = ["dummy", "../test1.csd"]
+args = ["dummy", "test.csd"]
 cs.compile_(args)                 # Compile a pre-defined test1.csd file
 cs.start()
 perform(cs)                       # This call runs Csound to completion
