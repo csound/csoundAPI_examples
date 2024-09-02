@@ -69,13 +69,13 @@
           (loop for i from 0 to 12
                 do (csoundEventString *cs*
                                       (format nil
-                                              "i1 [~d*0.25] 1 0.5 ~d"
+                                              "i1 [~d*0.25] 1 0.1 ~d"
                                               i (+ i 60))
                                       0))
           (csoundEventString *cs* "e 4" 0)
-          (loop
-           ;; run audio computing
-           when (> (csoundPerformKsmps *cs*) 0) return 0))))
+          (let ((x 0)) (loop while (= x 0)
+         ;; run audio computing
+          do (setf x (csoundPerformKsmps *cs*)))))))
 ;;; destroy the engine instance
 (csoundDestroy *cs*)
 

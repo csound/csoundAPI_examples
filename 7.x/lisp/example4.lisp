@@ -67,15 +67,17 @@
 (if (= (csoundCompileOrc *cs* *code* 0) 0) 
     (if (= (csoundStart *cs*) 0)
         (progn
+          (defvar *dur* 5.)
+          (defvar *inc* (/ 1. (* *dur* (csoundGetKr *cs*))))  
           ;; send in events
-          (csoundEventString *cs* "i1 0 5 0.1 60" 0)
-          (csoundEventString *cs* "e 5" 0)
+          (csoundEventString *cs* (format nil "i1 0 ~f 0.1 60" *dur*) 0)
+          (csoundEventString *cs* (format nil "e ~f" *dur*) 0)
           ;; compute audio blocks
-          (let ((pitch 1.0d0) (inc (/ 1. (* 5 (csoundGetKr *cs*)))))
+          (let ((pitch 1.0d0))
             (csoundSetControlChannel *cs* "pitch" pitch)
             (loop while (= (csoundPerformKsmps *cs*) 0)
                   do (csoundSetControlChannel
-                      *cs* "pitch" (incf pitch inc))
+                      *cs* "pitch" (incf pitch *inc*))
                   )))))
 ;;; destroy the engine instance
 (csoundDestroy *cs*)
