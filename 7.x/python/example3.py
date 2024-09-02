@@ -1,42 +1,57 @@
-# Example 3 - Using our own performance loop
-# Author: Steven Yi <stevenyi@gmail.com>
-# 2013.10.28
-#
-# Adapted for Python 3 by François Pinot, July 2021
-# Adapted for Csound 7.00 by François Pinot, August 2024
-#
-# In this example, we use a while loop to perform Csound one audio block at a time.
-# This technique is important to know as it will allow us to do further processing
-# safely at block boundaries.  We will explore the technique further in later examples.
+"""
+  Copyright (C) 2024 Victor Lazzarini
+  Adapted for Python by François Pinot
 
+  API Examples: realtime events
+  
+  This file is part of Csound.
+
+  The Csound Library is free software; you can redistribute it
+  and/or modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  Csound is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with Csound; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+  02111-1307 USA
+"""
 import ctcsound
+import sys
 
-# Our Orchestra for our project
-orc = """
-sr=44100
-ksmps=32
-nchnls=2
-0dbfs=1
+code = """
+0dbfs = 1
+instr 1
+ a1 expon p4,p3,0.001
+ a2 oscil a1,cpsmidinn(p5)
+    out a2
+endin
+"""
 
-instr 1 
-aout vco2 0.5, 440
-outs aout, aout
-endin"""
-
-# Our Score for our project
-sco = "i1 0 1"
-
-
-cs = ctcsound.Csound() # create an instance of Csound
-cs.set_option("-odac") # Set option for Csound
-cs.compile_orc(orc)    # Compile Orchestra from String
-cs.event_string(sco)   # Read in Score from String
-cs.start()             # When compiling from strings, this call is necessary
-                       # before doing any performing
-
-# The following is our main performance loop. We will perform one block of
-# sound at a time and continue to do so while it returns 0, which signifies
-# to keep processing.  We will explore this loop technique in further examples.
-
-while (cs.perform_ksmps() == 0):
-  pass
+# Create the Csound engine instance
+csound = ctcsound.Csound()
+res = ctcsound.CSOUND_SUCCESS
+# Set options checking for any errors
+for opt in sys.argv[1:]:
+    res += csound.set_option(opt)
+if res == ctcsound.CSOUND_SUCCESS:
+    # Compile code from string, synchronously
+    res = csound.compile_orc(code)
+    if res == ctcsound.CSOUND_SUCCESS:
+        evt = ""
+        # Start engine
+        res = csound.start()
+        # send realtine events, synchronously
+        for i in range(13):
+            evt += f'i1 {i*0.25:f} 0.3 0.1 {i+60:d}\n'
+        evt += f'e {i*0.3:f}\n'
+        csound.event_string(evt)
+        # compute audio blocks
+        while res == ctcsound.CSOUND_SUCCESS:
+            res = csound.perform_ksmps()
+sys.exit()

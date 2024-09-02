@@ -1,27 +1,37 @@
-# Example 1 - Simple Compilation with Csound
-# Author: Steven Yi <stevenyi@gmail.com>
-# 2013.10.28
-#
-# Adapted for Python 3 by François Pinot, July 2021
-# Adapted for Csound 7.00 by François Pinot, August 2024
-#
-# This example is a barebones example for creating an instance of Csound, 
-# compiling a pre-existing CSD, calling Perform to run Csound to completion,
-# then Stop and exit.  
+"""
+  Copyright (C) 2024 Victor Lazzarini
+  Adapted for Python by François Pinot
 
-# The first thing we do is import the csnd6 module, which is the module 
-# containing the Python interface to the Csound API.
+  API Examples: simple CLI frontend
+  
+  This file is part of Csound.
 
+  The Csound Library is free software; you can redistribute it
+  and/or modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  Csound is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with Csound; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+  02111-1307 USA
+"""
 import ctcsound
+import sys
 
-def perform(cs):
-    while True:
-        finished = cs.perform_ksmps()
-        if finished:
-            break
-    
-cs = ctcsound.Csound()            # Create an instance of the Csound object
-args = ["dummy", "test.csd"]
-cs.compile_(args)                 # Compile a pre-defined test1.csd file
-cs.start()
-perform(cs)                       # This call runs Csound to completion
+# Create the Csound engine instance
+csound = ctcsound.Csound()
+# Compile code from command-line arguments
+res = csound.compile_(sys.argv)
+if res == ctcsound.CSOUND_SUCCESS:
+    # Start engine
+    res = csound.start()
+    # compute audio blocks
+    while res == ctcsound.CSOUND_SUCCESS:
+        res = csound.perform_ksmps()
+sys.exit()
