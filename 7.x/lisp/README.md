@@ -1,0 +1,10 @@
+# Common Lisp API examples
+
+These examples are designed to work with Steel Bank Common Lisp
+<http::/sbcl.org>. They should work out of the box on MacOS with the
+standard framework install locations. On linux, a "libcsound.so" symlink to libcsound
+should exist in the working directory.
+
+
+- example1.c: simple CSD player
+- example2.c; compiling from a string

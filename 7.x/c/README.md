@@ -9,3 +9,4 @@
 - example7.c: getting signals from the main output.
 - example8.c: sending signals to the main input.
 - example9.c: accessing function tables.
+- example10.c: compiling from CSD string and resetting

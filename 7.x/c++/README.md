@@ -9,3 +9,5 @@
 - example7.cpp: getting signals from the main output.
 - example8.cpp: sending signals to the main input.
 - example9.cpp: accessing function tables.
+- example10.cpp: compiling from CSD string and resetting
+
