@@ -6,5 +6,8 @@ standard framework install locations. On linux, a "libcsound.so" symlink to libc
 should exist in the working directory.
 
 
-- example1.c: simple CSD player
-- example2.c; compiling from a string
+- example1.lisp: simple CSD player
+- example2.lisp; compiling from a string
+- example3.lisp: reatlime events
+- example4.lisp: control channels
+
