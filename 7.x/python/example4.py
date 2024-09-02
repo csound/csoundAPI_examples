@@ -1,53 +1,62 @@
-# Example 4 - Using Csound's Performance Thread 
-# Author: Steven Yi <stevenyi@gmail.com>
-# 2013.10.28
-#
-# Adapted for Python 3 by François Pinot, July 2021
-# Adapted for Csound 7.00 by François Pinot, August 2024
-#
-# In this example, we use a CsoundPerformanceThread to run Csound in 
-# a native thread.  Using a native thread is important to get the best
-# runtime performance for the audio engine.  It is especially important
-# for languages such as Python that do not have true native threads
-# and that use a Global Interpreter Lock. CsoundPerformanceThread has
-# some convenient methods for handling events, but does not have
-# features for doing regular processing at block boundaries.  In general,
-# use CsoundPerformanceThread when the only kinds of communication you
-# are doing with Csound are through events, and not using channels.
+"""
+  Copyright (C) 2024 Victor Lazzarini
+  Adapted for Python by François Pinot
 
+  API Examples: control channels
+  
+  This file is part of Csound.
 
+  The Csound Library is free software; you can redistribute it
+  and/or modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  Csound is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with Csound; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+  02111-1307 USA
+"""
 import ctcsound
+import sys
 
-# Our Orchestra for our project
-orc = """
-sr=44100
-ksmps=32
-nchnls=2
-0dbfs=1
+code = """
+0dbfs = 1        
+instr 1  
+kp chnget "pitch"
+a1 expon p4,p3,0.001   
+a2 oscil a1,cpsmidinn(p5)*kp
+   out a2    
+endin
+"""
 
-instr 1 
-aout vco2 0.5, 440
-outs aout, aout
-endin"""
-
-# Our Score for our project
-sco = "i1 0 1"
-
-
-cs = ctcsound.Csound() # create an instance of Csound
-cs.set_option("-odac") # Set option for Csound
-cs.compile_orc(orc)    # Compile Orchestra from String
-cs.event_string(sco)   # Read in Score from String
-cs.start()             # When compiling from strings, this call is necessary
-                       # before doing any performing
-
-# Create a new CsoundPerformanceThread, passing in the Csound object
-t = ctcsound.CsoundPerformanceThread(cs.csound())
-t.play()              # starts the thread, which is now running separately from
-                      # the main thread. This call is asynchronous and will
-                      # immediately return back here to continue code execution.
-t.join()              # Join will wait for the other thread to complete. If we
-                      # did not call Join(),after t.Play() returns we would
-                      # immediate move to the next line, c.Stop(). 
-                      # That would stop Csound without really giving it time
-                      # to run. 
+# Create the Csound engine instance
+csound = ctcsound.Csound()
+res = ctcsound.CSOUND_SUCCESS
+# Set options checking for any errors
+for opt in sys.argv[1:]:
+    res += csound.set_option(opt)
+if res == ctcsound.CSOUND_SUCCESS:
+    # Compile code from string, synchronously
+    res = csound.compile_orc(code)
+    if res == ctcsound.CSOUND_SUCCESS:
+        evt = ""
+        dur = 5.0
+        pitch, incr = 1.0, 1.0/(dur*csound.kr())
+        # Start engine
+        res = csound.start()
+        # send realtine events, synchronously
+        evt = f'i1 0 {dur:f} 0.1 60\n'
+        csound.event_string(evt)
+        # compute audio blocks
+        while res == ctcsound.CSOUND_SUCCESS:
+            csound.set_control_channel("pitch", pitch)
+            res = csound.perform_ksmps()
+            pitch += incr
+            if pitch > 2:
+                csound.event_string("e 0")
+sys.exit()

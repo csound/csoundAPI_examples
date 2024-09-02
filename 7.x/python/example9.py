@@ -1,91 +1,61 @@
-# Example 9 - More efficient Channel Communications
-# Author: Steven Yi <stevenyi@gmail.com>
-# 2013.10.28
-#
-# Adapted for Python 3 by François Pinot, July 2021
-# Adapted for Csound 7.00 by François Pinot, August 2024
-#
-# This example continues on from Example 9 and just refactors the
-# creation and setup of CsoundMYFLTArray's into a create_channel() 
-# function.  This example illustrates some natural progression that
-# might occur in your own API-based projects, and how you might 
-# simplify your own code.
+"""
+  Copyright (C) 2024 Victor Lazzarini
+  Adapted for Python by François Pinot
 
+  API Examples: accessing function tables
+  
+  This file is part of Csound.
 
+  The Csound Library is free software; you can redistribute it
+  and/or modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  Csound is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with Csound; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+  02111-1307 USA
+"""
 import ctcsound
-from random import randint, random
+import numpy as np
 import sys
 
-class RandomLine(object):
-    def __init__(self, base, range):
-        self.cur_val = 0.0
-        self.reset()
-        self.base = base
-        self.range = range
+code = """
+0dbfs = 1
+instr 1
+ k1 oscil 1,0.7,1  
+ a1 linen p4,0.1,p3,0.1
+ a2 oscil a1,cpsmidinn(p5+k1)
+    out a2
+endin
+ifn ftgen 1,0,8,7,0,8,0
+schedule 1,0,5,0.5,60
+event_i "e", 5
+"""
 
-    def reset(self):
-        self.dur = randint(256,512) 
-        self.end = random() 
-        self.slope = (self.end - self.cur_val) / self.dur
-
-    def get_value(self):
-        self.dur -= 1
-        if(self.dur < 0):
-            self.reset()
-        ret_val = self.cur_val
-        self.cur_val += self.slope
-        return self.base + (self.range * ret_val)
-
-
-def create_channel(csound, channelName):
-    "Creates a Csound Channel and returns it as a numpy ndarray"
-    chn, err = csound.channel_ptr(channelName, 
-        ctcsound.CSOUND_CONTROL_CHANNEL | ctcsound.CSOUND_INPUT_CHANNEL)
-    if err:
-    	sys.exit(1)
-    return chn
-
-###############################
-
-# Our Orchestra for our project
-orc = """
-sr=44100
-ksmps=32
-nchnls=2
-0dbfs=1
-
-instr 1 
-kamp chnget "amp"
-kfreq chnget "freq"
-printk 0.5, kamp
-printk 0.5, kfreq
-aout vco2 kamp, kfreq
-aout moogladder aout, 2000, 0.25
-outs aout, aout
-endin"""
-
-cs = ctcsound.Csound()    # create an instance of Csound
-cs.set_option("-odac")    # Set option for Csound
-cs.set_option("-m7")      # Set option for Csound
-cs.compile_orc(orc)       # Compile Orchestra from String
-
-sco = "i1 0 60\n"
-
-cs.event_string(sco)     # Read in Score generated from notes 
-
-cs.start()               # When compiling from strings, this call is necessary
-                         # before doing any performing
-
-amp_channel = create_channel(cs, "amp")    # uses utility method to create
-                                          # a channel and get an ndarray
-freq_channel = create_channel(cs, "freq")
-
-amp = RandomLine(.4, .2)
-freq = RandomLine(400, 80)
-
-amp_channel[0] = amp.get_value()
-freq_channel[0] = freq.get_value()
-
-while (cs.perform_ksmps() == 0):
-    amp_channel[0] = amp.get_value()
-    freq_channel[0] = freq.get_value()
+# Create the Csound engine instance
+csound = ctcsound.Csound()
+res = ctcsound.CSOUND_SUCCESS
+# Set options checking for any errors
+for opt in sys.argv[1:]:
+    res += csound.set_option(opt)
+if res == ctcsound.CSOUND_SUCCESS:
+    # Compile code from string, synchronously
+    res = csound.compile_orc(code)
+    if res == ctcsound.CSOUND_SUCCESS:
+        # Start engine
+        res = csound.start()
+        if res == ctcsound.CSOUND_SUCCESS:
+            # get table and fill it
+            table = csound.table(1)
+            table *= 0
+            table += np.linspace(0, table.size, table.size, endpoint=False)
+            # compute audio blocks
+            while res == ctcsound.CSOUND_SUCCESS:
+                res = csound.perform_ksmps()
+sys.exit()

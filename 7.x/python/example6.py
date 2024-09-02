@@ -1,90 +1,70 @@
-# Example 6 - Generating Score
-# Author: Steven Yi <stevenyi@gmail.com>
-# 2013.10.28
-#
-# Adapted for Python 3 by François Pinot, July 2021
-# Adapted for Csound 7.00 by François Pinot, August 2024
-#
-# This example continues on from Example 5, rewriting the example using
-# a Class called Note. The note example has its __str__ method implemented
-# to generate a well-formatted Csound SCO note.  
-#
-# This example also shows how a list of notes could be used multiple times.
-# The first loop through we use the notes as-is, and during the second time
-# we generate the notes again with the same properties except we alter the 
-# fifth p-field up 4 semitones. 
-#
-# Note: Altering a Notes values like this is alright for this example, but 
-# it is a destructive edit.  Real world code might make copies of Notes or 
-# alter the score generation to maintain the original values. 
+"""
+  Copyright (C) 2024 Victor Lazzarini
+  Adapted for Python by François Pinot
 
+  API Examples: multi-threaded performance
+  
+  This file is part of Csound.
 
+  The Csound Library is free software; you can redistribute it
+  and/or modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  Csound is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with Csound; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+  02111-1307 USA
+"""
 import ctcsound
-from random import randint
+import sys
 
-def midi2pch(num):
-    "Convert MIDI Note Numbers to Csound PCH format"
-    return "%d.%02g" % (3 + (num / 12), num % 12)
+code = """
+0dbfs = 1
+instr 1
+icnt = 0
+while icnt < 12 do
+schedule 2,icnt*0.25,0.3,0.1,cpsmidinn(icnt+p4)
+icnt += 1
+od
+endin
+instr 2
+a1 expon p4,p3,0.001
+a2 oscil a1,p5
+   out a2 
+endin
+"""
 
-class Note(object):
-    def __init__(self, *args):
-        self.pfields = list(args)
-
-    def __str__(self):
-        ret_val = "i"
-        for i in range(len(self.pfields)):
-            if (i == 4):
-                ret_val += " " + midi2pch(self.pfields[i])
-            else:
-                ret_val += " " + str(self.pfields[i])
-        return ret_val
-
-
-# Our Orchestra for our project
-orc = """
-sr=44100
-ksmps=32
-nchnls=2
-0dbfs=1
-
-instr 1 
-ipch = cps2pch(p5, 12)
-kenv linsegr 0, .05, 1, .05, .7, .4, 0
-aout vco2 p4 * kenv, ipch 
-aout moogladder aout, 2000, 0.25
-outs aout, aout
-endin"""
-
-cs = ctcsound.Csound()  # create an instance of Csound
-cs.set_option("-odac")  # Set option for Csound
-cs.compile_orc(orc)     # Compile Orchestra from String
-
-
-notes = []           #initialize a list to hold lists of values 
-for i in range(13):  #populate that list
-    notes.append( Note(1, i * .25, .25, 0.5, randint(60,75)) )
-
-# now convert list of Note objects to string
-sco = ""
-for n in notes:
-    sco += "%s\n"%n # this implicitly calls the __str__ method on the Note Class
-
-# generate notes again transposed a Major 3rd up
-for n in notes:
-    n.pfields[4] += 4
-    n.pfields[1] += .125
-    sco += "%s\n"%n 
-
-print(sco)
-
-cs.event_string(sco)   # Read in Score generated from notes 
-
-cs.start()             # When compiling from strings, this call is
-                       # necessary before doing any performing
-
-# The following is our main performance loop. We will perform one block
-# of sound at a time and continue to do so while it returns 0,
-# which signifies to keep processing.  
-
-while (cs.perform_ksmps() == 0):
-  pass
+# Create the Csound engine instance
+csound = ctcsound.Csound()
+# enforce realtime output and suppress messages 
+csound.set_option("-o dac -dm0")
+# Compile code from string
+res = csound.compile_orc(code)
+if res == ctcsound.CSOUND_SUCCESS:
+    evt = ""
+    csound_performance_thread = ctcsound.CsoundPerformanceThread(csound.csound())
+    # Start engine
+    res = csound.start()
+    # start performance thread
+    if res == ctcsound.CSOUND_SUCCESS:
+        csound_performance_thread.play()
+    while csound_performance_thread.is_running():
+        # prompt for input
+        csound.message("Csound>")
+        # take in event from stdin, 
+        #  use event e <t> to finish after t secs 
+        evt = input()
+        # send in event asynchronously
+        csound.event_string(evt, async_=True)
+        # exit loop if requested
+        if evt[0] == "e":
+            break
+    # Join thread an wait for it to finish
+    csound_performance_thread.join()
+sys.exit()

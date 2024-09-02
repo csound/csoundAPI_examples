@@ -1,47 +1,57 @@
-# Example 2 - Compilation with Csound without CSD
-# Author: Steven Yi <stevenyi@gmail.com>
-# 2013.10.28
-#
-# Adapted for Python 3 by François Pinot, July 2021
-# Adapted for Csound 7.00 by François Pinot, August 2024
-#
-# In this example, we move from using an external CSD file to 
-# embedding our Csound ORC and SCO code within our Python project.
-# Besides allowing encapsulating the code within the same file,
-# using the CompileOrc() and CompileSco() API calls is useful when
-# the SCO or ORC are generated, or perhaps coming from another 
-# source, such as from a database or network.
+"""
+  Copyright (C) 2024 Victor Lazzarini
+  Adapted for Python by François Pinot
 
+  API Examples: compiling from string
+  
+  This file is part of Csound.
+
+  The Csound Library is free software; you can redistribute it
+  and/or modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  Csound is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with Csound; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+  02111-1307 USA
+"""
 import ctcsound
+import sys
 
-def perform(cs):
-    while True:
-        finished = cs.perform_ksmps()
-        if finished:
-            break
+code = """
+0dbfs = 1
+instr 1
+ a1 expon p4,p3,0.001
+ a2 oscil a1, p5
+    out a2
+endin
+icnt = 0
+while icnt <= 12 do
+ schedule 1, icnt*0.25, 0.3, 0.1, cpsmidinn(60+icnt)
+ icnt += 1
+od
+event_i "e", icnt*0.3
+"""
 
-# Defining our Csound ORC code within a triple-quoted, multiline String
-orc = """
-sr=44100
-ksmps=32
-nchnls=2
-0dbfs=1
-
-instr 1 
-aout vco2 0.5, 440
-outs aout, aout
-endin"""
-
-
-# Defining our Csound SCO code 
-sco = "i1 0 1"
-
-cs = ctcsound.Csound()
-cs.set_option("-odac")  # Using set_option() to configure Csound
-                        # Note: use only one commandline flag at a time
-
-cs.compile_orc(orc)     # Compile the Csound Orchestra string
-cs.event_string(sco)    # Compile the Csound SCO String
-cs.start()              # When compiling from strings, this call is necessary
-                        # before doing any performing
-perform(cs)             # Run Csound to completion
+# Create the Csound engine instance
+csound = ctcsound.Csound()
+res = ctcsound.CSOUND_SUCCESS
+# Set options checking for any errors
+for opt in sys.argv[1:]:
+    res += csound.set_option(opt)
+if res == ctcsound.CSOUND_SUCCESS:
+    # Compile code from string, synchronously
+    res = csound.compile_orc(code)
+    if res == ctcsound.CSOUND_SUCCESS:
+        # Start engine
+        res = csound.start()
+        # compute audio blocks
+        while res == ctcsound.CSOUND_SUCCESS:
+            res = csound.perform_ksmps()
+sys.exit()
