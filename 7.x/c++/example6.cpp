@@ -29,21 +29,21 @@
 #include <csound/csPerfThread.hpp>
 #endif
 
-const char *code =    
-  "0dbfs = 1              \n"
-  "instr 1                \n"
-  "icnt = 0 \n"
-  "while icnt < 12 do\n"
-  "schedule 2,icnt*0.25,0.3,0.1,"
-  "cpsmidinn(icnt+p4)\n"
-  "icnt += 1\n"
-  "od\n"
-  "endin                  \n"  
-  "instr 2                \n"
-  "a1 expon p4,p3,0.001   \n"
-  "a2 oscil a1,p5         \n"
-  "    out a2             \n"
-  "endin                  \n";
+const char *code =  R"orc(  
+0dbfs = 1
+instr 1
+icnt = 0
+while icnt < 12 do
+schedule 2,icnt*p3,p3*2,p4,cpsmidinn(icnt+p5)
+icnt += 1
+od
+endin
+instr 2
+a1 expon p4,p3,0.001
+a2 oscil a1,p5
+   out a2 
+endin
+)orc";
 
 int main(int argc, const char *argv[]) {
   /* Create the Csound engine instance */

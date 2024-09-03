@@ -29,7 +29,7 @@ code = """
 instr 1
 icnt = 0
 while icnt < 12 do
-schedule 2,icnt*0.25,0.3,0.1,cpsmidinn(icnt+p4)
+schedule 2,icnt*p3,p3*2,p4,cpsmidinn(icnt+p5)
 icnt += 1
 od
 endin
