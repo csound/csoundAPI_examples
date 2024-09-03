@@ -13,4 +13,7 @@ should exist in the working directory.
 - example5.lisp: compiling code on-the-fly
 - example6.lisp: multithreaded performance
 - example7.lisp: accessing main outputs
+- example8.lisp: sending signals to main input
+
+
 

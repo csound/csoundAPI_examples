@@ -41,7 +41,7 @@ const char *code =
   "cpsmidinn(icnt+60)\n"
   "icnt += 1\n"
   "od\n"
-  "event_i \"e\", icnt*0.25\n";
+  "event_i \"e\", icnt*0.25+0.05\n";
 
 int main(int argc, const char *argv[]) {
   /* Create the Csound engine instance */
