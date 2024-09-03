@@ -11,5 +11,6 @@ should exist in the working directory.
 - example3.lisp: reatlime events
 - example4.lisp: control channels
 - example5.lisp: compiling code on-the-fly
-- example5.lisp: multithreaded performance
+- example6.lisp: multithreaded performance
+- example7.lisp: accessing main outputs
 
