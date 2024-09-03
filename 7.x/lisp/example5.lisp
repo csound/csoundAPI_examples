@@ -1,7 +1,7 @@
 ;;;;
 ;;;;  Copyright (C) 2024 Victor Lazzarini
 ;;;;
-;;;;  API Examples: simple CLI frontend
+;;;;  API Examples:compiling code on-the-fly
 ;;;;  
 ;;;;  This file is part of Csound.
 ;;;;
@@ -38,31 +38,59 @@
 ;;; sbcl FFI interface
 (load-shared-object *libcsound*)
 (define-alien-routine "csoundCreate" (* T) (a (* T)) (b c-string))
-(define-alien-routine "csoundCompile" int (a (* T)) (b int) (c (* c-string)))
+(define-alien-routine "csoundCompileOrc" int (a (* T)) (b c-string) (c int))
+(define-alien-routine "csoundSetOption" int (a (* T)) (b c-string))
 (define-alien-routine "csoundStart" int (a (* T)))
 (define-alien-routine "csoundPerformKsmps" int (a (* T)))
 (define-alien-routine "csoundDestroy" void (a (* T)))
+(define-alien-routine "csoundGetKr" double (a (* T)))
 
-;;; command-line args (max 32)
-(defvar *argc* (length *posix-argv*))
-(let ((args (make-alien (array c-string 32))))
-(loop for n from 0 to *argc*
-      do (setf (deref (deref args) n)
-               (nth n *posix-argv*)))
-(defvar *argv* (cast args (* c-string))))
+(defvar *nl* (format nil "~C" #\linefeed))
+(defvar *code*
+  (concatenate 'string *nl*
+               "0dbfs = 1" *nl*
+               "instr 1" *nl* 
+               "a1 expon p4,p3,0.001" *nl*
+               "a2 oscil a1, p5" *nl*
+               "    out a2" *nl*
+               "endin" *nl* 
+               "icnt = 0" *nl*
+               "while icnt <= 12 do" *nl* 
+               " schedule 1, icnt*0.25, 0.3, 0.1, cpsmidinn(60+icnt)" *nl*
+               " icnt += 1" *nl*
+               "od" *nl*
+               "event_i \"e\", 10" *nl*))
+
+(defvar *perf*
+  (concatenate 'string *nl*
+               "icnt = 0 " *nl*
+               "while icnt < 12 do" *nl*
+               "schedule 1,icnt*0.25,0.3,0.1," 
+               "cpsmidinn(icnt+60)" *nl*
+               "icnt += 1" *nl*
+               "od" *nl*))
 
 ;;; create the Csound engine instance
 (defvar *cs* (csoundCreate NIL NIL))
+;;; get command-line options
+(loop for opt in (cdr *posix-argv*)
+      do (csoundSetOption *cs* opt))
 ;;; compile the CSD
-(if (= (csoundCompile *cs* *argc* *argv*) 0)
+(if (= (csoundCompileOrc *cs* *code* 0) 0)
     ;; start engine
     (if (= (csoundStart *cs*) 0)
-        (let ((x 0)) (loop while (= x 0)
-         ;; run audio computing
-          do (setf x (csoundPerformKsmps *cs*))))))
-
+        (let ((x 0) (time 0.0) (inc (/ 1.0 (csoundGetKr *cs*))))
+              (loop while (= x 0)
+                    ;; run audio computing
+                    do
+                    (setf x (csoundPerformKsmps *cs*))
+                    (incf time inc)
+                    (if (> time 2.5)
+                        (progn
+                          (csoundCompileOrc *cs* *perf* 0)
+                          (incf time -2.5)))
+                    ))))
 ;;; destroy the engine instance
-(csoundDestroy *cs*)
-(free-alien *argv*)
+  (csoundDestroy *cs*)
 
 
