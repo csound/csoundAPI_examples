@@ -1,3 +1,4 @@
+#!/usr/local/bin/sbcl --dynamic-space-size 500 --script
 ;;;;
 ;;;;  Copyright (C) 2024 Victor Lazzarini
 ;;;;
@@ -21,45 +22,14 @@
 ;;;;  02111-1307 USA
 ;;;;
 
-;;; check for libcsound locations
-;;; first on MacOS
-(defvar *libcsound*
-  (concatenate 'string (posix-getenv "HOME")
-               "/Library/Frameworks/CsoundLib64.framework/CsoundLib64"))
-(if (not (probe-file *libcsound*))
-    (setf *libcsound*
-          "/Library/Frameworks/CsoundLib64.framework/CsoundLib64"))
-;;; then local directory - linux .so 
-(if (not (probe-file *libcsound*))
-    (setf *libcsound* "libcsound64.so"))
-;;; if libcsound was not found
-(if (not (probe-file *libcsound*)) (quit))
-
-;;; sbcl FFI interface
-(load-shared-object *libcsound*)
-(define-alien-routine "csoundCreate" (* T) (a (* T)) (b c-string))
-(define-alien-routine "csoundCompile" int (a (* T)) (b int) (c (* c-string)))
-(define-alien-routine "csoundStart" int (a (* T)))
-(define-alien-routine "csoundPerformKsmps" int (a (* T)))
-(define-alien-routine "csoundDestroy" void (a (* T)))
-
-;;; command-line args (max 32)
-(defvar *argc* (length *posix-argv*))
-(let ((args (make-alien (array c-string 32))))
-(loop for n from 0 to *argc*
-      do (setf (deref (deref args) n)
-               (nth n *posix-argv*)))
-(defvar *argv* (cast args (* c-string))))
-
+(load "csound-sbcl.lisp")
+(use-package 'csound)
 ;;; create the Csound engine instance
-(defvar *cs* (csoundCreate NIL NIL))
+(defvar *cs* (csound-create))
 ;;; compile the CSD
-(if (= (csoundCompile *cs* *argc* *argv*) 0)
+(if (= (csound-compile *cs* *posix-argv*) 0)
     ;; start engine
-    (if (= (csoundStart *cs*) 0)
-            (loop while (= (csoundPerformKsmps *cs*) 0))))
+    (if (= (csound-start *cs*) 0)
+            (loop while (= (csound-perform-ksmps *cs*) 0))))
 ;;; destroy the engine instance
-(csoundDestroy *cs*)
-(free-alien *argv*)
-
-
+(csound-destroy *cs*)

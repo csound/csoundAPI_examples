@@ -1,9 +1,11 @@
+#!/usr/local/bin/sbcl --dynamic-space-size 500 --script
 ;;;;
 ;;;;  Copyright (C) 2024 Victor Lazzarini
 ;;;;
 ;;;;  API Examples: sending signals to main input
 ;;;;  
 ;;;;  This file is part of Csound.
+;;;;
 ;;;;
 ;;;;  The Csound Library is free software; you can redistribute it
 ;;;;  and/or modify it under the terms of the GNU Lesser General Public
@@ -21,31 +23,8 @@
 ;;;;  02111-1307 USA
 ;;;;
 
-;;; check for libcsound locations
-;;; first on MacOS
-(defvar *libcsound*
-  (concatenate 'string (posix-getenv "HOME")
-               "/Library/Frameworks/CsoundLib64.framework/CsoundLib64"))
-(if (not (probe-file *libcsound*))
-    (setf *libcsound*
-          "/Library/Frameworks/CsoundLib64.framework/CsoundLib64"))
-;;; then local directory - linux .so 
-(if (not (probe-file *libcsound*))
-    (setf *libcsound* "libcsound64.so"))
-;;; if libcsound was not found
-(if (not (probe-file *libcsound*)) (quit))
-
-;;; sbcl FFI interface
-(load-shared-object *libcsound*)
-(define-alien-routine "csoundCreate" (* T) (a (* T)) (b c-string))
-(define-alien-routine "csoundCompileOrc" int (a (* T)) (b c-string) (c int))
-(define-alien-routine "csoundSetOption" int (a (* T)) (b c-string))
-(define-alien-routine "csoundStart" int (a (* T)))
-(define-alien-routine "csoundPerformKsmps" int (a (* T)))
-(define-alien-routine "csoundDestroy" void (a (* T)))
-(define-alien-routine "csoundGetSpin" (* double) (a (* T)))
-(define-alien-routine "csoundGetKsmps" int (a (* T)))
-(define-alien-routine "csoundGetSr" double (a (* T)))
+(load "csound-sbcl.lisp")
+(use-package 'csound)
 
 (defvar *nl* (format nil "~C" #\linefeed))
 (defvar *code*
@@ -66,26 +45,26 @@
                "event_i \"e\", icnt*0.25+0.05" *nl*))
 
 ;;; create the Csound engine instance
-(defvar *cs* (csoundCreate NIL NIL))
+(defvar *cs* (csound-create))
 ;;; get command-line options
 (loop for opt in (cdr *posix-argv*)
-      do (csoundSetOption *cs* opt))
+      do (csound-set-option *cs* opt))
 ;;; compile the CSD
-(if (= (csoundCompileOrc *cs* *code* 0) 0)
+(if (= (csound-compile-orc *cs* *code*) 0)
     ;; start engine
-    (if (= (csoundStart *cs*) 0)
-        (let ((spin (csoundGetSpin *cs*)) 
-              (twopi (* pi 2)) (ph 0.) (rms 0.) 
-              (si (/ 1. (csoundGetSr *cs*))))
+    (if (= (csound-start *cs*) 0)
+        (let ((twopi (* pi 2)) (ph 0.) (rms 0.)
+              (ksmps (csound-get-ksmps *cs*))
+              (si (/ 1. (csound-get-sr *cs*))))
           (loop do            
-                (dotimes (n (csoundGetKsmps *cs*))
+                (dotimes (n ksmps)
                   ;; compute 1Hz sine modulation input signal
-                  (setf (deref spin n) (sin (* twopi ph)))
+                  (csound-spin *cs* n (sin (* twopi ph)))
                   (incf ph si)
                   (setf ph (- ph (floor ph))))
                  ;; run audio computing
-                while(= (csoundPerformKsmps *cs*) 0)))))
+                while(= (csound-perform-ksmps *cs*) 0)))))
 ;;; destroy the engine instance
-(csoundDestroy *cs*)
+(csound-destroy *cs*)
 
 

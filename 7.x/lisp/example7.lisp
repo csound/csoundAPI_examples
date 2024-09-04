@@ -1,3 +1,4 @@
+#!/usr/local/bin/sbcl --dynamic-space-size 2000 --script
 ;;;;
 ;;;;  Copyright (C) 2024 Victor Lazzarini
 ;;;;
@@ -21,30 +22,8 @@
 ;;;;  02111-1307 USA
 ;;;;
 
-;;; check for libcsound locations
-;;; first on MacOS
-(defvar *libcsound*
-  (concatenate 'string (posix-getenv "HOME")
-               "/Library/Frameworks/CsoundLib64.framework/CsoundLib64"))
-(if (not (probe-file *libcsound*))
-    (setf *libcsound*
-          "/Library/Frameworks/CsoundLib64.framework/CsoundLib64"))
-;;; then local directory - linux .so 
-(if (not (probe-file *libcsound*))
-    (setf *libcsound* "libcsound64.so"))
-;;; if libcsound was not found
-(if (not (probe-file *libcsound*)) (quit))
-
-;;; sbcl FFI interface
-(load-shared-object *libcsound*)
-(define-alien-routine "csoundCreate" (* T) (a (* T)) (b c-string))
-(define-alien-routine "csoundCompileOrc" int (a (* T)) (b c-string) (c int))
-(define-alien-routine "csoundSetOption" int (a (* T)) (b c-string))
-(define-alien-routine "csoundStart" int (a (* T)))
-(define-alien-routine "csoundPerformKsmps" int (a (* T)))
-(define-alien-routine "csoundDestroy" void (a (* T)))
-(define-alien-routine "csoundGetSpout" (* double) (a (* T)))
-(define-alien-routine "csoundGetKsmps" int (a (* T)))
+(load "csound-sbcl.lisp")
+(use-package 'csound)
 
 (defvar *nl* (format nil "~C" #\linefeed))
 (defvar *code*
@@ -57,33 +36,34 @@
                "endin" *nl* 
                "icnt = 0" *nl*
                "while icnt <= 12 do" *nl* 
-               " schedule 1, icnt*0.25, 0.3, 0.1, cpsmidinn(60+icnt)" *nl*
+               " schedule 1, icnt*0.25, 0.3, 0.5, cpsmidinn(60+icnt)" *nl*
                " icnt += 1" *nl*
                "od" *nl*
                "event_i \"e\", icnt*0.25+0.05" *nl*))
 
 ;;; create the Csound engine instance
-(defvar *cs* (csoundCreate NIL NIL))
+(defvar *cs* (csound-create))
 ;;; get command-line options
 (loop for opt in (cdr *posix-argv*)
-      do (csoundSetOption *cs* opt))
+      do (csound-set-option *cs* opt))
 ;;; compile the CSD
-(if (= (csoundCompileOrc *cs* *code* 0) 0)
+(if (= (csound-compile-orc *cs* *code*) 0)
     ;; start engine
-    (if (= (csoundStart *cs*) 0)
-        (let ((x 0) (rms 0.) (spout (csoundGetSpout *cs*)) spn)
+    (if (= (csound-start *cs*) 0)
+        (let ((x 0) (rms 0.) (spn 1.0)
+              (ksmps (csound-get-ksmps *cs*)))
           (loop while (= x 0)
                 ;; run audio computing
                 do
-                (setf x (csoundPerformKsmps *cs*))
-                (dotimes (n (csoundGetKsmps *cs*))
-                  ;; get spout sample
-                  (setf spn (deref spout n))
+                (setf x (csound-perform-ksmps *cs*))
+                (dotimes (n ksmps)
+                  ;; get spout sampl
+                  (setf spn (csound-spout *cs* n))
                   ;; compute power rms
-                  (setf rms (+ (* rms 0.01) (* (* spn spn) 0.99))))
-                ;; print amp rms
+                  (setf rms (+ (* rms 0.01) (* (* spn spn) 0.99))))           
+                ;; print amp rms 
                 (write-line (format nil "rms: ~,6f " (sqrt rms)))))))
 ;;; destroy the engine instance
-(csoundDestroy *cs*)
+(csound-destroy *cs*)
 
 

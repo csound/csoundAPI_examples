@@ -1,3 +1,4 @@
+#!/usr/local/bin/sbcl --dynamic-space-size 500 --script
 ;;;;
 ;;;;  Copyright (C) 2024 Victor Lazzarini
 ;;;;
@@ -21,35 +22,8 @@
 ;;;;  02111-1307 USA
 ;;;;
 
-;;; check for libcsound locations
-;;; first on MacOS
-(defvar *libcsound*
-  (concatenate 'string (posix-getenv "HOME")
-               "/Library/Frameworks/CsoundLib64.framework/CsoundLib64"))
-(if (not (probe-file *libcsound*))
-    (setf *libcsound*
-          "/Library/Frameworks/CsoundLib64.framework/CsoundLib64"))
-;;; then local directory - linux .so 
-(if (not (probe-file *libcsound*))
-    (setf *libcsound* "libcsound64.so"))
-;;; if libcsound was not found
-(if (not (probe-file *libcsound*)) (quit))
-
-;;; sbcl FFI interface
-(load-shared-object *libcsound*)
-(define-alien-routine "csoundCreate" (* T) (a (* T)) (b c-string))
-(define-alien-routine "csoundCompileOrc" int (a (* T)) (b c-string) (c int))
-(define-alien-routine "csoundSetOption" int (a (* T)) (b c-string))
-(define-alien-routine "csoundStart" int (a (* T)))
-(define-alien-routine "csoundPerformKsmps" int (a (* T)))
-(define-alien-routine "csoundDestroy" void (a (* T)))
-(define-alien-routine "csoundSleep" void (a int))
-(define-alien-routine "csoundEventString" int (a (* T)) (b c-string) (c int))
-(define-alien-routine "csoundCreatePerformanceThread" (* T) (a (* T)))
-(define-alien-routine "csoundPerformanceThreadPlay" void (a (* T)))
-(define-alien-routine "csoundPerformanceThreadIsRunning" int (a (* T)))
-(define-alien-routine "csoundPerformanceThreadJoin" void (a (* T)))
-(define-alien-routine "csoundDestroyPerformanceThread" void (a (* T)))
+(load "csound-sbcl.lisp")
+(use-package 'csound)
 
 (defvar *nl* (format nil "~C" #\linefeed))
 (defvar *code* (concatenate 'string *nl*
@@ -70,18 +44,18 @@
                             ))
 
 ;;; create the Csound engine instance
-(defvar *cs* (csoundCreate NIL NIL))
+(defvar *cs* (csound-create))
 ;;; enforce realtime audio and suppress messages
-(csoundSetOption *cs* "-o dac -dm0")
+(csound-set-option *cs* "-o dac -dm0")
 ;;; compile the CSD
-(if (= (csoundCompileOrc *cs* *code* 0) 0)
+(if (= (csound-compile-orc *cs* *code*) 0)
     ;; create performance thread
-    (let ((perf (csoundCreatePerformanceThread *cs*)))
+    (let ((perf (csound-create-performance-thread *cs*)))
       ;; start engine
-      (if (= (csoundStart *cs*) 0)
+      (if (= (csound-start *cs*) 0)
           ;; start performance
-          (csoundPerformanceThreadPlay perf))
-      (let ((res (csoundPerformanceThreadIsRunning perf)) line)
+          (csound-performance-thread-play perf))
+      (let ((res (csound-performance-thread-is-running perf)) line)
         (loop
          while (= res 1)
          do
@@ -91,14 +65,14 @@
          ;; read and send event asynchronously
          ;; use event e <t> to finish after t secs
          (setf line (read-line))      
-         (csoundEventString *cs* line 1)
+         (csound-event-string *cs* line :async 1)
          (if (string= (subseq line 0 1) "e") (setf res 0)))
         ;; join the performance thread
-        (csoundPerformanceThreadJoin perf))
+        (csound-performance-thread-join perf))
       ;; destroy the perfomance thread object
-      (csoundDestroyPerformanceThread perf)))
+      (csound-destroy-performance-thread perf)))
 ;; destroy the engine
-(csoundDestroy *cs*)
+(csound-destroy *cs*)
 
 
 
