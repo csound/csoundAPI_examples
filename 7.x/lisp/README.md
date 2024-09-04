@@ -3,7 +3,8 @@
 These examples are designed to work with Steel Bank Common Lisp
 <http::/sbcl.org>. They should work out of the box on MacOS with the
 standard framework install locations. On linux, a "libcsound64.so" symlink to libcsound
-should exist in the working directory.
+should exist in the working directory. For Windows, the code can be
+edited to reflect the location of the Csound64.dll library file.
 
 
 - example1.lisp: simple CLI frontend
@@ -15,6 +16,8 @@ should exist in the working directory.
 - example7.lisp: accessing main outputs
 - example8.lisp: sending signals to main input
 - example9.lisp: accessing function tables
+- example10.lisp: compiling from CSD string and resetting
+
 
 
 
