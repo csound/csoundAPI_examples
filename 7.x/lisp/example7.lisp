@@ -45,7 +45,6 @@
 (define-alien-routine "csoundDestroy" void (a (* T)))
 (define-alien-routine "csoundGetSpout" (* double) (a (* T)))
 (define-alien-routine "csoundGetKsmps" int (a (* T)))
-(define-alien-routine "csoundMessage" void (a (* T)) (b c-string) (c double) (d c-string))
 
 (defvar *nl* (format nil "~C" #\linefeed))
 (defvar *code*
@@ -72,24 +71,18 @@
 (if (= (csoundCompileOrc *cs* *code* 0) 0)
     ;; start engine
     (if (= (csoundStart *cs*) 0)
-        (let ((x 0) (rms 0.) (ksmps (csoundGetKsmps *cs*))
-              (spout (csoundGetSpout *cs*)) spn)
+        (let ((x 0) (rms 0.) (spout (csoundGetSpout *cs*)) spn)
           (loop while (= x 0)
                 ;; run audio computing
                 do
                 (setf x (csoundPerformKsmps *cs*))
-                (dotimes (n ksmps)
+                (dotimes (n (csoundGetKsmps *cs*))
                   ;; get spout sample
                   (setf spn (deref spout n))
                   ;; compute power rms
-                  (setf rms (+ (* rms 0.01) (* (* spn spn) 0.99)))  
-                  )
+                  (setf rms (+ (* rms 0.01) (* (* spn spn) 0.99))))
                 ;; print amp rms
-                (csoundMessage *cs* "rms: %f %s" (sqrt rms) *nl*)
-                )
-          )
-      )
-  )
+                (write-line (format nil "rms: ~,6f " (sqrt rms)))))))
 ;;; destroy the engine instance
 (csoundDestroy *cs*)
 

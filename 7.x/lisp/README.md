@@ -14,6 +14,8 @@ should exist in the working directory.
 - example6.lisp: multithreaded performance
 - example7.lisp: accessing main outputs
 - example8.lisp: sending signals to main input
+- example9.lisp: accessing function tables
+
 
 
 

@@ -57,10 +57,7 @@
 (if (= (csoundCompile *cs* *argc* *argv*) 0)
     ;; start engine
     (if (= (csoundStart *cs*) 0)
-        (let ((x 0)) (loop while (= x 0)
-         ;; run audio computing
-          do (setf x (csoundPerformKsmps *cs*))))))
-
+            (loop while (= (csoundPerformKsmps *cs*) 0))))
 ;;; destroy the engine instance
 (csoundDestroy *cs*)
 (free-alien *argv*)

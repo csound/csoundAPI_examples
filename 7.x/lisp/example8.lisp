@@ -74,23 +74,17 @@
 (if (= (csoundCompileOrc *cs* *code* 0) 0)
     ;; start engine
     (if (= (csoundStart *cs*) 0)
-        (let ((x 0) (rms 0.) (ksmps (csoundGetKsmps *cs*))
-              (spin (csoundGetSpin *cs*)) (twopi (* pi 2))
-              (ph 0.) (si (/ 1. (csoundGetSr *cs*))))
-          (loop while (= x 0)
-                ;; run audio computing
-                do            
-                (dotimes (n ksmps)
+        (let ((spin (csoundGetSpin *cs*)) 
+              (twopi (* pi 2)) (ph 0.) (rms 0.) 
+              (si (/ 1. (csoundGetSr *cs*))))
+          (loop do            
+                (dotimes (n (csoundGetKsmps *cs*))
                   ;; compute 1Hz sine modulation input signal
                   (setf (deref spin n) (sin (* twopi ph)))
                   (incf ph si)
-                  (if (> ph 1.) (setf ph (- ph 1.)))
-                  )   
-                (setf x (csoundPerformKsmps *cs*))
-                )
-          )
-      )
-  )
+                  (setf ph (- ph (floor ph))))
+                 ;; run audio computing
+                while(= (csoundPerformKsmps *cs*) 0)))))
 ;;; destroy the engine instance
 (csoundDestroy *cs*)
 

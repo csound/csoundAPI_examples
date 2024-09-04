@@ -64,18 +64,13 @@
 (if (= (csoundCompileOrc *cs* *code* 0) 0)
     ;; start engine
     (if (= (csoundStart *cs*) 0)
-        (progn
+        (let ((x 0))
           ;; send events in
-          (loop for i from 0 to 12
-                do (csoundEventString *cs*
-                                      (format nil
-                                              "i1 [~d*0.25] 1 0.1 ~d"
-                                              i (+ i 60))
-                                      0))
+          (dotimes (n 13)
+            (csoundEventString
+             *cs* (format nil "i1 ~f 1 0.1 ~d" (* n 0.25) (+ n 60)) 0))
           (csoundEventString *cs* "e 4" 0)
-          (let ((x 0)) (loop while (= x 0)
-         ;; run audio computing
-          do (setf x (csoundPerformKsmps *cs*)))))))
+          (loop while (= (csoundPerformKsmps *cs*) 0)))))
 ;;; destroy the engine instance
 (csoundDestroy *cs*)
 

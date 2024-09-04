@@ -79,25 +79,25 @@
     (let ((perf (csoundCreatePerformanceThread *cs*)))
       ;; start engine
       (if (= (csoundStart *cs*) 0)
-            ;; start performance
+          ;; start performance
           (csoundPerformanceThreadPlay perf))
-          (let ((res (csoundPerformanceThreadIsRunning perf)) line)
-            (loop
-             while (= res 1)
-             do
-             ;; prompt for input
-             (write-string "Csound>")
-             (finish-output)
-             ;; read and send event asynchronously
-             ;; use event e <t> to finish after t secs
-             (setf line (read-line))      
-             (csoundEventString *cs* line 1)
-             (if (string= (subseq line 0 1) "e") (setf res 0))
-             )
-            (csoundPerformanceThreadJoin perf))
-      (csoundDestroyPerformanceThread perf)
-      )
-  )
+      (let ((res (csoundPerformanceThreadIsRunning perf)) line)
+        (loop
+         while (= res 1)
+         do
+         ;; prompt for input
+         (write-string "Csound>")
+         (finish-output)
+         ;; read and send event asynchronously
+         ;; use event e <t> to finish after t secs
+         (setf line (read-line))      
+         (csoundEventString *cs* line 1)
+         (if (string= (subseq line 0 1) "e") (setf res 0)))
+        ;; join the performance thread
+        (csoundPerformanceThreadJoin perf))
+      ;; destroy the perfomance thread object
+      (csoundDestroyPerformanceThread perf)))
+;; destroy the engine
 (csoundDestroy *cs*)
 
 

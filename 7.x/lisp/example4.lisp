@@ -57,7 +57,8 @@
                             "    out a2" *nl*
                             "endin" *nl* 
                             "icnt = 0" *nl*))
-
+;;; run for 5 seconds
+(defvar *dur* 5.)
 ;;; create the Csound engine instance
 (defvar *cs* (csoundCreate NIL NIL))
 ;;; get command-line options
@@ -66,19 +67,16 @@
 ;;; compile the CSD
 (if (= (csoundCompileOrc *cs* *code* 0) 0) 
     (if (= (csoundStart *cs*) 0)
-        (progn
-          (defvar *dur* 5.)
-          (defvar *inc* (/ 1. (* *dur* (csoundGetKr *cs*))))  
+        (let ((inc (/ 1. (* *dur* (csoundGetKr *cs*))))
+              (pitch 1.0d0))  
           ;; send in events
           (csoundEventString *cs* (format nil "i1 0 ~f 0.1 60" *dur*) 0)
           (csoundEventString *cs* (format nil "e ~f" *dur*) 0)
+          (csoundSetControlChannel *cs* "pitch" pitch)
           ;; compute audio blocks
-          (let ((pitch 1.0d0))
-            (csoundSetControlChannel *cs* "pitch" pitch)
-            (loop while (= (csoundPerformKsmps *cs*) 0)
-                  do (csoundSetControlChannel
-                      *cs* "pitch" (incf pitch *inc*))
-                  )))))
+          (loop while (= (csoundPerformKsmps *cs*) 0)
+           do
+           (csoundSetControlChannel *cs* "pitch" (incf pitch inc))))))
 ;;; destroy the engine instance
 (csoundDestroy *cs*)
 
