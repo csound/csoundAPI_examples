@@ -10,3 +10,7 @@
 - example8.c: sending signals to the main input.
 - example9.c: accessing function tables.
 - example10.c: compiling from CSD string and resetting
+
+A CMake script is given as an example. It has been tested with MacOS
+using the vanilla Csound installer. It may need some adaptation for
+other platforms.
