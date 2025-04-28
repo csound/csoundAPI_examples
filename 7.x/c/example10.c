@@ -61,7 +61,7 @@ int main(int argc, const char *argv[]) {
       res += csoundSetOption(csound, argv[i]);
     if(res == CSOUND_SUCCESS) {
       /* Compile CSD code from string */
-      res = csoundCompileCSD(csound, code, 1);
+      res = csoundCompileCSD(csound, code, 1, 0);
       if(res == CSOUND_SUCCESS) {
         /* Start engine */
         res = csoundStart(csound);

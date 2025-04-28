@@ -54,7 +54,8 @@ int main(int argc, const char *argv[]) {
       /* send realtine events, synchronously */
       for(i = 0; i < 12; i++) 
         evt << "i1 " << i*0.25 << " 0.3 0.1 " << i+60 << std::endl;
-      evt  << "e " << i*0.3 << std::endl;                                         csound.EventString(evt.str().c_str(), 0);
+        evt  << "e " << i*0.3 << std::endl;
+        csound.EventString(evt.str().c_str(), 0);
       /* compute audio blocks */
       while(res == CSOUND_SUCCESS)
           res = csound.PerformKsmps();
