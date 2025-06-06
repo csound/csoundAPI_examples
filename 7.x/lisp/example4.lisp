@@ -56,6 +56,7 @@
           (loop while (= (csound-perform-ksmps *cs*) 0)
            do
            (csound-set-control-channel *cs* "pitch" (incf pitch inc))))))
+(format t "~Cpitch: ~3,1f ~C" #\Linefeed (csound-get-control-channel *cs* "pitch") #\Linefeed)
 ;;; destroy the engine instance
 (csound-destroy *cs*)
 
