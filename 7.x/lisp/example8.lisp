@@ -26,23 +26,21 @@
 (load "csound-sbcl.lisp")
 (use-package 'csound)
 
-(defvar *nl* (format nil "~C" #\linefeed))
 (defvar *code*
-  (concatenate 'string *nl*
-               "0dbfs = 1" *nl*
-               "instr 1" *nl*
-               "asig in" *nl*
-               "amod powoftwo asig" *nl*
-               "a1 expon p4,p3,0.001" *nl*
-               "a2 oscil a1, p5*amod" *nl*
-               "    out a2" *nl*
-               "endin" *nl* 
-               "icnt = 0" *nl*
-               "while icnt <= 12 do" *nl* 
-               " schedule 1, icnt*0.25, 0.3, 0.1, cpsmidinn(60+icnt)" *nl*
-               " icnt += 1" *nl*
-               "od" *nl*
-               "event_i \"e\", icnt*0.25+0.05" *nl*))
+  "0dbfs = 1 
+  instr 1
+  asig in
+  amod powoftwo asig
+  a1 expon p4,p3,0.001
+  a2 oscil a1, p5*amod
+      out a2
+  endin
+  icnt = 0
+  while icnt <= 12 do
+   schedule 1, icnt*0.25, 0.3, 0.1, cpsmidinn(60+icnt)
+   icnt += 1
+   od
+  event_i \"e\", icnt*0.25+0.05")
 
 ;;; create the Csound engine instance
 (defvar *cs* (csound-create))
