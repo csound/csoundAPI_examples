@@ -50,8 +50,8 @@ int main(int argc, const char *argv[]) {
     res = csound.CompileOrc(code, 0);
     if(res == CSOUND_SUCCESS) {
       std::ostringstream evt;
-      MYFLT dur = 5.;
-      MYFLT pitch = 1., incr = 1./(dur*csound.GetKr());
+      cs_float dur = 5.;
+      cs_float pitch = 1., incr = 1./(dur*csound.GetKr());
       /* Start engine */
       res = csound.Start();
       /* send realtine event, synchronously */

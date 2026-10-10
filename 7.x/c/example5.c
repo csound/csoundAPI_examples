@@ -65,8 +65,8 @@ int main(int argc, const char *argv[]) {
       res = csoundCompileOrc(csound, code, 0);
       if(res == CSOUND_SUCCESS) {
         char evt[64];
-        MYFLT time  = 0.;
-        const MYFLT incr = 1./csoundGetKr(csound);
+        cs_float time  = 0.;
+        const cs_float incr = 1./csoundGetKr(csound);
         /* Start engine */
         res = csoundStart(csound);
         /* compute audio blocks */

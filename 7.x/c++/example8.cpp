@@ -56,7 +56,7 @@ int main(int argc, const char *argv[]) {
     /* Compile code from string, synchronously */
     res = csound.CompileOrc(code, 0);
     if(res == CSOUND_SUCCESS) {
-      MYFLT *spin, si = 1./csound.GetSr();
+      cs_float *spin, si = 1./csound.GetSr();
       double ph = 0.; 
       int nsmps = csound.GetKsmps();
       /* Start engine */

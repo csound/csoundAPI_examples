@@ -64,8 +64,8 @@ int main(int argc, const char *argv[]) {
     res = csound.CompileOrc(code, 0);
     if(res == CSOUND_SUCCESS) {
       char evt[64];
-      MYFLT time  = 0.;
-      const MYFLT incr = 1./csound.GetKr();
+      cs_float time  = 0.;
+      const cs_float incr = 1./csound.GetKr();
       /* Start engine */
       res = csound.Start();
       /* compute audio blocks */

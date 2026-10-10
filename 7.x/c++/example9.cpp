@@ -51,7 +51,7 @@ int main(int argc, const char *argv[]) {
     /* Compile code from string, synchronously */
     res = csound.CompileOrc(code, 0);
     if(res == CSOUND_SUCCESS) {
-      MYFLT *ftab;
+      cs_float *ftab;
       int tlen;
       /* Start engine */
       res = csound.Start();
@@ -59,7 +59,7 @@ int main(int argc, const char *argv[]) {
         /* get table and fill it */
         tlen = csound.GetTable(&ftab, 1);
         for(i = 0; i < tlen; i++)
-          ftab[i] = (MYFLT) i;
+          ftab[i] = (cs_float) i;
         /* compute audio blocks */
         while(res == CSOUND_SUCCESS) 
           res = csound.PerformKsmps();

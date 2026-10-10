@@ -51,8 +51,8 @@ int main(int argc, const char *argv[]) {
       res = csoundCompileOrc(csound, code, 0);
       if(res == CSOUND_SUCCESS) {
         char evt[64];
-        MYFLT dur = 5.;
-        MYFLT pitch = 1., incr = 1./(dur*csoundGetKr(csound));
+        cs_float dur = 5.;
+        cs_float pitch = 1., incr = 1./(dur*csoundGetKr(csound));
         /* Start engine */
         res = csoundStart(csound);
         /* send realtine event, synchronously */

@@ -55,9 +55,9 @@ int main(int argc, const char *argv[]) {
       /* Compile code from string, synchronously */
       res = csound.CompileOrc(code, 0);
       if(res == CSOUND_SUCCESS) {
-        MYFLT rms  = 0.;
+        cs_float rms  = 0.;
         int nsmps = csound.GetKsmps();
-        const MYFLT *spout;
+        const cs_float *spout;
         /* Start engine */
         res = csound.Start();
         /* get spout pointer */

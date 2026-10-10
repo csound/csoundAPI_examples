@@ -58,7 +58,7 @@ int main(int argc, const char *argv[]) {
       /* Compile code from string, synchronously */
       res = csoundCompileOrc(csound, code, 0);
       if(res == CSOUND_SUCCESS) {
-        MYFLT *spin, si = 1./csoundGetSr(csound);
+        cs_float *spin, si = 1./csoundGetSr(csound);
         double ph = 0.; 
         int nsmps = csoundGetKsmps(csound);
         /* Start engine */
