@@ -9,3 +9,5 @@
 - example7.py: getting signals from the main output.
 - example8.py: sending signals to the main input.
 - example9.py: accessing function tables.
+- example10.py: compiling from CSD string and resetting.
+- example11.py: MIDI input and output through host callbacks (needs a ctcsound newer than 7.0.0).
